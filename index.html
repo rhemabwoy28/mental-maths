@@ -177,7 +177,41 @@ input[type=text]{
 .hub-go{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .hub-go .btn-main{flex:1 1 200px}
 .big-op{font-size:1.05rem;font-weight:700;letter-spacing:.02em}
-@media (max-width:420px){.kid .qtext{font-size:3rem}}
+/* Times tables */
+.tvgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:8px}
+.tvchip{
+  text-align:left;padding:10px 11px;border-radius:11px;border:1px solid var(--line);
+  background:var(--panel2);color:var(--txt);font:inherit;display:flex;align-items:center;gap:9px
+}
+.tvchip .k{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:1.02rem;font-weight:600}
+.tvchip .v{margin-left:auto;font-family:ui-monospace,Menlo,Consolas,monospace;font-weight:700;color:var(--acc)}
+.tvchip[data-state="known"]{border-color:var(--acc);background:#12291f}
+.tvchip[data-state="known"] .v{color:var(--acc)}
+.tvchip[data-state="learning"]{border-color:var(--warn)}
+.tvchip[data-state="learning"] .v{color:var(--warn)}
+.tvchip[data-state="new"]{opacity:.62}
+.tvchip:hover{opacity:1;border-color:#3a4a6d}
+.tvlegend{display:flex;gap:14px;flex-wrap:wrap;font-size:.76rem;color:var(--mut);margin:10px 0 0}
+.tvlegend i{display:inline-block;width:11px;height:11px;border-radius:3px;vertical-align:-1px;margin-right:5px;border:1px solid var(--line)}
+
+/* Abacus */
+.abacus{display:flex;gap:10px;justify-content:center;padding:18px 6px 10px;background:#0d1424;border:1px solid var(--line);border-radius:16px;overflow-x:auto}
+.abcol{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:52px}
+.abcap{font-size:.68rem;color:var(--mut);font-family:ui-monospace,Menlo,Consolas,monospace}
+.abup{width:30px;height:30px;border-radius:50%;background:#1b2740;border:2px solid #3a4a6d;margin-top:14px}
+.abup.on{background:var(--acc);border-color:var(--acc)}
+.abbeam{width:100%;height:5px;background:#3a4a6d;border-radius:2px;margin:3px 0}
+.ablow{width:30px;height:30px;border-radius:50%;background:#1b2740;border:2px solid #3a4a6d}
+.ablow.on{background:var(--acc2);border-color:var(--acc2)}
+.ablow:disabled,.abup:disabled{opacity:.4;cursor:default}
+.absay{background:#101a2b;border-left:3px solid var(--acc);padding:11px 13px;border-radius:0 10px 10px 0;font-size:1rem;min-height:3.2em}
+.absay b{color:var(--acc)}
+.abn{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.abn input{width:96px;text-align:center;font-size:1.3rem;font-weight:700;padding:12px 8px;border-radius:12px;border:1px solid var(--line);background:#0d1424;color:var(--txt);font-family:ui-monospace,Menlo,Consolas,monospace}
+.abstep{font-size:.8rem;color:var(--mut)}
+@media (max-width:420px){.abup,.ablow{width:26px;height:26px}.abcol{min-width:44px}.tvgrid{grid-template-columns:repeat(auto-fill,minmax(94px,1fr))}}
+@media (max-width:420px){.kid .qtext{font-size:2.8rem}}
+
 .prompt .bl{color:var(--mut);font-size:.74rem;font-family:system-ui,sans-serif;display:block;letter-spacing:.1em;text-transform:uppercase}
 .explain{border-left:3px solid var(--acc);padding-left:12px;margin:14px 0}
 kbd{background:#0d1424;border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:1px 6px;font:inherit;font-size:.78rem;color:var(--txt)}
@@ -239,6 +273,19 @@ kbd{background:#0d1424;border:1px solid var(--line);border-bottom-width:2px;bord
     </div>
 
     <div class="divider">Shortcuts</div>
+
+    <div class="grid2" style="margin-bottom:16px">
+      <div class="hub" style="margin:0">
+        <h2>Times Tables</h2>
+        <p class="hub-lead">The multiples of every number, to 60. Green means it already comes out fast.</p>
+        <div class="hub-go"><button class="btn-main" id="btn-tables" type="button">Open tables</button></div>
+      </div>
+      <div class="hub" style="margin:0">
+        <h2>Abacus</h2>
+        <p class="hub-lead">Tap the beads. See how adding and taking away actually work, one move at a time.</p>
+        <div class="hub-go"><button class="btn-main" id="btn-abacus" type="button">Open abacus</button></div>
+      </div>
+    </div>
 
     <div class="card">
       <h2>Strategy Lab</h2>
@@ -513,6 +560,82 @@ kbd{background:#0d1424;border:1px solid var(--line);border-bottom-width:2px;bord
     </div>
   </section>
 
+  <section id="view-tables" class="view hidden">
+    <div class="topbar">
+      <button class="btn-ghost" id="btn-tables-back" type="button">&#8592; Menu</button>
+      <span class="spacer"></span>
+    </div>
+    <h1 style="font-size:1.5rem">Times Tables</h1>
+    <p class="sub">The multiples of each number, up to the point you need. Green ones already come out in about three seconds.</p>
+
+    <div class="card">
+      <h2>Which table</h2>
+      <div class="row" id="tv-picker"></div>
+    </div>
+
+    <div class="card">
+      <h2>Show multiples up to</h2>
+      <div class="row" id="tv-cap-picker">
+        <button class="pick" data-cap="20" type="button" aria-pressed="false"><b>20</b><span>quick</span></button>
+        <button class="pick" data-cap="40" type="button" aria-pressed="false"><b>40</b><span>medium</span></button>
+        <button class="pick" data-cap="60" type="button" aria-pressed="false"><b>60</b><span>the lot</span></button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 id="tv-title">Multiples</h2>
+      <div class="tvgrid" id="tv-grid"></div>
+      <div class="tvlegend">
+        <span><i style="background:#12291f;border-color:var(--acc)"></i>known</span>
+        <span><i style="background:#1a2337;border-color:var(--warn)"></i>still settling</span>
+        <span><i style="background:#1a2337"></i>not practised yet</span>
+      </div>
+      <p class="tiny muted" id="tv-note" style="margin:12px 0 0"></p>
+      <div class="row" style="margin-top:14px">
+        <button id="btn-tables-drill" class="btn-main" type="button" style="flex:1">Practise times <span id="tv-drill-n">2</span></button>
+      </div>
+    </div>
+  </section>
+
+  <section id="view-abacus" class="view hidden">
+    <div class="topbar">
+      <button class="btn-ghost" id="btn-ab-back" type="button">&#8592; Menu</button>
+      <span class="spacer"></span>
+    </div>
+    <h1 style="font-size:1.5rem">Abacus</h1>
+    <p class="sub">One bead is one. The big bead is five. A column is worth ten times the one on its right.</p>
+
+    <div class="abacus" id="ab-frame"></div>
+    <p class="tiny muted" style="text-align:center;margin:0 0 14px">Tap the beads to move them. Nothing is broken if you get it wrong.</p>
+
+    <p class="absay" id="ab-say">Tap any bead to play. Or choose something below.</p>
+
+    <div class="card">
+      <h2>What shall we work out</h2>
+      <div class="abn" style="margin-bottom:12px">
+        <label style="flex:0 0 100%">Number</label>
+        <input type="text" id="ab-a" inputmode="numeric" value="243" aria-label="First number">
+        <button class="btn-ghost" id="ab-make" type="button">Show it</button>
+      </div>
+      <div class="abn" style="margin-bottom:14px">
+        <label style="flex:0 0 100%">Then take away, or add</label>
+        <input type="text" id="ab-b" inputmode="numeric" value="35" aria-label="Second number">
+        <button class="btn-ghost" id="ab-sub" type="button">Take away</button>
+        <button class="btn-ghost" id="ab-add" type="button">Add</button>
+      </div>
+      <div class="row">
+        <button class="btn-main" id="ab-step" type="button" style="flex:1">Next step</button>
+        <button class="btn-ghost" id="ab-reset" type="button">Clear</button>
+      </div>
+      <p class="abstep" id="ab-progress" style="margin:12px 0 0"></p>
+    </div>
+
+    <div class="card">
+      <h2>What an abacus is actually for</h2>
+      <ul class="steps" id="ab-notes"></ul>
+    </div>
+  </section>
+
   <div id="pause-veil" class="overlay hidden">
     <div class="card">
       <h2 style="text-transform:none;letter-spacing:0">Paused</h2>
@@ -537,7 +660,8 @@ const MODE_INFO = {
   run: { label: '2-Min Run', time: 120 },
   endless: { label: 'Endless', time: 0 },
   drill: { label: 'Drill', time: 0 },
-  lab: { label: 'Strategy Lab', time: 0 }
+  lab: { label: 'Strategy Lab', time: 0 },
+  table: { label: 'Table Drill', time: 60 }
 };
 const DIFF_LABEL = { easy: 'Easy', medium: 'Medium', hard: 'Hard' };
 const LIMITS = {
@@ -552,7 +676,261 @@ const MISSED_SHOWN = 6;
 const LAB_LENGTH = 8;
 const SKILL_KEEP = 20;
 
+/* ---------- Times tables reference ---------- */
+
 const $ = id => document.getElementById(id);
+const TV_MAX_N = 12;
+const tv = { n: 2, cap: 60 };
+function mulState(a, b) {
+  const k1 = factKey('mul', a, b);
+  if (save.facts && save.facts[k1]) return factState(k1);
+  return factState(factKey('mul', b, a));
+}
+function renderTables() {
+  const picker = $('tv-picker');
+  picker.innerHTML = '';
+  for (let n = 1; n <= TV_MAX_N; n++) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'pick';
+    btn.dataset.tv = n;
+    btn.setAttribute('aria-pressed', String(n === tv.n));
+    const b = document.createElement('b');
+    b.textContent = n + ' times';
+    const s = document.createElement('span');
+    s.textContent = n === 1 ? 'the counting numbers' : 'multiples of ' + n;
+    btn.appendChild(b);
+    btn.appendChild(s);
+    picker.appendChild(btn);
+  }
+  $('tv-cap-picker').querySelectorAll('[data-cap]').forEach(b => b.setAttribute('aria-pressed', String(Number(b.dataset.cap) === tv.cap)));
+  $('tv-title').textContent = 'Multiples of ' + tv.n;
+  const grid = $('tv-grid');
+  grid.innerHTML = '';
+  let known = 0, total = 0;
+  for (let k = 1; tv.n * k <= tv.cap; k++) {
+    const product = tv.n * k;
+    const st = mulState(tv.n, k);
+    if (st === 'known') known++;
+    if (st !== 'new') total++;
+    const chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'tvchip';
+    chip.dataset.state = st;
+    const key = document.createElement('span');
+    key.className = 'k';
+    key.textContent = tv.n + ' × ' + k;
+    const val = document.createElement('span');
+    val.className = 'v';
+    val.textContent = String(product);
+    chip.appendChild(key);
+    chip.appendChild(val);
+    chip.title = st === 'known' ? 'known' : st === 'learning' ? 'still settling' : 'not practised yet';
+    grid.appendChild(chip);
+  }
+  $('tv-note').textContent = known + ' of ' + grid.children.length + ' known, ' + total + ' started. The ones marked known come out in about three seconds.';
+  $('tv-drill-n').textContent = tv.n;
+}
+
+/* ---------- Abacus ---------- */
+
+const AB_PLACES = [1, 10, 100, 1000];
+const ab = { val: [0, 0, 0, 0], steps: [], at: 0 };
+const PLACE_WORD = ['ones', 'tens', 'hundreds', 'thousands'];
+function abNumber() { return ab.val[0] + ab.val[1] * 10 + ab.val[2] * 100 + ab.val[3] * 1000; }
+function abDigits(n) {
+  n = Math.max(0, Math.min(9999, Math.round(Number(n) || 0)));
+  const d = [0, 0, 0, 0];
+  for (let i = 0; i < 4; i++) d[i] = Math.floor(n / AB_PLACES[i]) % 10;
+  return d;
+}
+function abSet(n) {
+  n = Math.max(0, Math.min(9999, Math.round(Number(n) || 0)));
+  ab.val = abDigits(n);
+  return n;
+}
+function abSplit(n) {
+  n = Math.max(0, Math.min(9999, Math.round(Number(n) || 0)));
+  const out = [];
+  for (let i = 0; i < 4; i++) {
+    const d = Math.floor(n / AB_PLACES[i]) % 10;
+    if (d) out.push({ place: i, digit: d });
+  }
+  return out;
+}
+function abLowerCount(i) { return ab.val[i] >= 5 ? ab.val[i] - 5 : ab.val[i]; }
+function abUpperOn(i) { return ab.val[i] >= 5; }
+
+function renderAbacus() {
+  const frame = $('ab-frame');
+  frame.innerHTML = '';
+  for (let i = 3; i >= 0; i--) {
+    const col = document.createElement('div');
+    col.className = 'abcol';
+    const up = document.createElement('button');
+    up.type = 'button';
+    up.className = 'abup' + (abUpperOn(i) ? ' on' : '');
+    up.title = 'worth five';
+    up.setAttribute('aria-label', AB_PLACES[i] + ' column, five bead');
+    up.addEventListener('click', () => {
+      ab.val[i] = abUpperOn(i) ? abLowerCount(i) : 5 + abLowerCount(i);
+      ab.steps = []; ab.at = 0;
+      renderAbacus();
+      sayAb('You are now at <b>' + abNumber() + '</b>.');
+    });
+    const beam = document.createElement('span');
+    beam.className = 'abbeam';
+    const beamCap = document.createElement('span');
+    beamCap.className = 'abcap';
+    beamCap.textContent = AB_PLACES[i];
+    col.appendChild(up);
+    col.appendChild(beam);
+    col.appendChild(beamCap);
+    const lowCount = abLowerCount(i);
+    for (let b = 0; b < 4; b++) {
+      const bead = document.createElement('button');
+      bead.type = 'button';
+      bead.className = 'ablow' + (b < lowCount ? ' on' : '');
+      bead.title = 'worth one';
+      bead.setAttribute('aria-label', AB_PLACES[i] + ' column, one bead ' + (b + 1));
+      bead.addEventListener('click', () => {
+        const cur = abLowerCount(i);
+        ab.val[i] = abUpperOn(i) ? 5 + (cur > b ? b : b + 1) : (cur > b ? b : b + 1);
+        if (ab.val[i] < 0) ab.val[i] = 0;
+        if (ab.val[i] > 9) ab.val[i] = 9;
+        ab.steps = []; ab.at = 0;
+        renderAbacus();
+        sayAb('You are now at <b>' + abNumber() + '</b>.');
+      });
+      col.appendChild(bead);
+    }
+    frame.appendChild(col);
+  }
+  const digitRow = document.createElement('div');
+  digitRow.className = 'abcol';
+  const lab = document.createElement('span');
+  lab.className = 'abcap';
+  lab.textContent = 'showing';
+  const show = document.createElement('b');
+  show.className = 'mono';
+  show.style.fontSize = '1.15rem';
+  show.style.color = 'var(--acc)';
+  show.textContent = abNumber();
+  digitRow.appendChild(lab);
+  digitRow.appendChild(show);
+  frame.appendChild(digitRow);
+}
+function sayAb(html) { $('ab-say').innerHTML = html; }
+
+function abStepsMake(n) {
+  const t = abSet(n);
+  const steps = [{ say: 'Clear the frame. Every bead down means <b>nought</b> in that column.', state: [0, 0, 0, 0] }];
+  abSplit(t).forEach(p => {
+    steps.push({
+      say: 'Put <b>' + p.digit + '</b> in the ' + PLACE_WORD[p.place] + ' column.',
+      state: placeOnly(p.place, p.digit)
+    });
+    if (p.digit === 5) steps.push({ say: 'Five is the one number with its own bead, so push the big bead down and leave the small ones up.', state: placeOnly(p.place, 5) });
+  });
+  steps.push({ say: 'All the way up: <b>' + t + '</b>.', state: ab.val.slice() });
+  return { steps: steps, title: 'Showing ' + t };
+}
+function placeOnly(place, digit) {
+  const s = [0, 0, 0, 0];
+  s[place] = digit;
+  return s;
+}
+function abStepsAdd(a, b) {
+  const start = abSet(a);
+  const base = abDigits(start);
+  const total = abSet(start + b);
+  const steps = [{ say: 'Put <b>' + start + '</b> on the frame first.', state: base.slice() }];
+  abSplit(b).forEach(p => {
+    steps.push({ say: 'Add <b>' + p.digit + '</b> to the ' + PLACE_WORD[p.place] + ' column.', state: addTo(base, placeOnly(p.place, p.digit)) });
+    if (p.digit === 5) steps.push({ say: 'The big bead alone makes the five, so that step is one tap instead of five.', state: placeOnly(p.place, 5) });
+  });
+  steps.push({ say: 'The frame now reads <b>' + total + '</b>, which is ' + start + ' + ' + b + '.', state: ab.val.slice() });
+  return { steps: steps, title: start + ' + ' + b + ' = ' + total };
+}
+function abStepsSub(a, b) {
+  const start = abSet(a);
+  const base = abDigits(start);
+  if (b > start) {
+    return { steps: [{ say: 'You cannot take <b>' + b + '</b> away from <b>' + start + '</b> — the frame does not go below nothing. Try a smaller number to take away.', state: base.slice() }], title: 'That will not fit' };
+  }
+  const total = abSet(start - b);
+  const steps = [{ say: 'Put <b>' + start + '</b> on the frame first.', state: base.slice() }];
+  abSplit(b).reverse().forEach(p => {
+    const next = subFrom(base, placeOnly(p.place, p.digit));
+    steps.push({ say: 'Take <b>' + p.digit + '</b> out of the ' + PLACE_WORD[p.place] + ' column. Start on the right so you never have to borrow across a column.', state: next || base.slice() });
+  });
+  steps.push({ say: 'The frame now reads <b>' + total + '</b>, which is ' + start + ' − ' + b + '.', state: ab.val.slice() });
+  return { steps: steps, title: start + ' − ' + b + ' = ' + total };
+}
+function addTo(n, delta) {
+  const s = n.slice();
+  for (let i = 0; i < 4; i++) s[i] += delta[i];
+  return carry(s);
+}
+function subFrom(n, delta) {
+  const s = n.slice();
+  for (let i = 0; i < 4; i++) s[i] -= delta[i];
+  let borrow = 0;
+  for (let i = 0; i < 4; i++) { s[i] -= borrow; if (s[i] < 0) { s[i] += 10; borrow = 1; } else borrow = 0; }
+  if (borrow) return null;
+  return s;
+}
+function carry(d) {
+  const s = d.slice();
+  for (let i = 0; i < 4; i++) { if (s[i] >= 10) { s[i] -= 10; if (i + 1 < 4) s[i + 1] += 1; } }
+  return s;
+}
+function abRun(plan) {
+  ab.steps = plan.steps;
+  ab.at = 0;
+  $('ab-say').innerHTML = '<b>' + plan.title + '</b><br>Press "Next step" to work through it one move at a time.';
+  $('ab-progress').textContent = 'Step 0 of ' + ab.steps.length;
+  renderAbacus();
+}
+function abNext() {
+  if (ab.at >= ab.steps.length) {
+    sayAb('That is the whole thing finished. Press Clear to start again, or change the numbers above.');
+    $('ab-progress').textContent = 'Done — ' + ab.steps.length + ' steps';
+    return;
+  }
+  const s = ab.steps[ab.at];
+  ab.val = s.state.slice();
+  sayAb(s.say);
+  ab.at += 1;
+  $('ab-progress').textContent = 'Step ' + ab.at + ' of ' + ab.steps.length;
+  renderAbacus();
+}
+function abClear() {
+  ab.val = [0, 0, 0, 0];
+  ab.steps = []; ab.at = 0;
+  sayAb('The frame is empty. That reads as <b>0</b>. Tap a bead to start, or pick numbers below.');
+  $('ab-progress').textContent = '';
+  renderAbacus();
+}
+function abNotes() {
+  const list = $('ab-notes');
+  list.innerHTML = '';
+  [
+    'Four small beads and one big bead. The big bead is worth <b>five</b>, which is why 5 is the easiest number to put on or take off.',
+    'A whole column is worth <b>ten times</b> the column on its right. That is the whole trick of place value, and the reason 243 really is 2 hundreds, 4 tens and 3 ones.',
+    'Counting in fives is fast: <b>25</b> is 5 in the tens column, one tap of the big bead.',
+    'To take away, start at the <b>right-hand</b> column. Work right to left and you never have to borrow across a column.',
+    'The big digit and the columns are the same idea as the bead groups in First Facts, drawn bigger.'
+  ].forEach(t => {
+    const li = document.createElement('li');
+    const x = document.createElement('span');
+    x.className = 'sx';
+    x.innerHTML = t;
+    li.appendChild(x);
+    list.appendChild(li);
+  });
+}
+
 const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
 const pick = arr => arr[Math.floor(Math.random() * arr.length)];
 const fmt = n => Math.abs(n) >= 1000 ? n.toLocaleString('en-US') : String(n);
@@ -1004,15 +1382,19 @@ function allFacts(track) {
 
 function factStat(k) {
   if (!save.facts) save.facts = {};
-  if (!save.facts[k]) save.facts[k] = { seen: 0, right: 0, times: [], peeks: 0 };
+  if (!save.facts[k] || typeof save.facts[k] !== 'object') save.facts[k] = { seen: 0, right: 0, times: [], peeks: 0 };
   return save.facts[k];
 }
 function factState(k) {
   const s = save.facts ? save.facts[k] : null;
-  if (!s || !s.seen) return 'new';
-  const fast = s.right >= 3 && medianOf(s.times) > 0 && medianOf(s.times) <= 3000;
-  if (s.right >= 3 && (fast || !s.times.length)) return fast ? 'known' : 'learning';
-  return s.right > 0 ? 'learning' : 'new';
+  if (!s || typeof s !== 'object') return 'new';
+  const seen = Number(s.seen) || 0;
+  const right = Number(s.right) || 0;
+  if (!seen) return 'new';
+  if (right < 3) return right > 0 ? 'learning' : 'new';
+  const med = medianOf(s.times);
+  if (!med) return 'learning';
+  return med <= 3000 ? 'known' : 'learning';
 }
 function rungProgress(track, i) {
   const r = RUNGS[track][i];
@@ -1467,6 +1849,12 @@ try {
     save.prefs.ops = save.prefs.ops.filter(o => OP_ORDER.indexOf(o) > -1);
     if (!save.prefs.ops.length) save.prefs.ops = base.prefs.ops;
     if (['example', 'steps', 'hint'].indexOf(save.prefs.teach) < 0) save.prefs.teach = 'steps';
+    const fixedFacts = {};
+    Object.keys(save.facts).forEach(k => {
+      const v = save.facts[k];
+      if (v && typeof v === 'object') fixedFacts[k] = cleanStat(v);
+    });
+    save.facts = fixedFacts;
   }
 } catch (err) { save = blankSave(); }
 
@@ -1529,11 +1917,16 @@ function nextQuestion() {
     const src = entry && entry.q ? entry.q : null;
     return buildQuestion(src ? src.op : pick(game.ops), src ? src.diff : game.diff, src ? src.a : undefined, src ? src.b : undefined);
   }
+  if (game.mode === 'table' && game.tableN) {
+    const k = ri([2, Math.max(2, Math.min(12, Math.floor(60 / game.tableN)))]);
+    const a = game.tableN, b = k;
+    return { op: 'mul', diff: 'easy', a: a, b: b, answer: a * b, text: fmt(a) + ' × ' + b + ' =' };
+  }
   return makeQuestion(pick(game.ops), game.diff);
 }
 
 const game = {
-  mode: 'sprint', diff: 'easy', ops: ['add', 'sub', 'mul', 'div'],
+  mode: 'sprint', diff: 'easy', ops: ['add', 'sub', 'mul', 'div'], tableN: 0,
   score: 0, streak: 0, bestStreak: 0, correct: 0, answered: 0, qnum: 0,
   remaining: 0, paused: false, over: false, lastAt: 0, q: null, timeMs: 0, qStart: 0
 };
@@ -1569,7 +1962,7 @@ const sfx = {
 };
 
 function setView(name) {
-  ['home', 'lab', 'play', 'kids', 'kp', 'game', 'over'].forEach(v => $('view-' + v).classList.toggle('hidden', v !== name));
+  ['home', 'lab', 'play', 'kids', 'kp', 'tables', 'abacus', 'game', 'over'].forEach(v => $('view-' + v).classList.toggle('hidden', v !== name));
 }
 
 function startSession(mode, diff, ops) {
@@ -1582,7 +1975,7 @@ function startSession(mode, diff, ops) {
   game.remaining = MODE_INFO[mode].time;
   game.lastAt = performance.now();
   $('pause-veil').classList.add('hidden');
-  $('g-mode').textContent = MODE_INFO[mode].label;
+  $('g-mode').textContent = game.mode === 'table' ? (MODE_INFO.table.label + ' · ×' + game.tableN) : MODE_INFO[mode].label;
   $('g-diff').textContent = DIFF_LABEL[diff];
   $('g-clock-label').textContent = MODE_INFO[mode].time ? 'Time left' : 'No clock';
   setView('game');
@@ -1850,10 +2243,20 @@ function skillFor(id) {
   return save.skills[id];
 }
 function medianOf(list) {
-  if (!list || !list.length) return 0;
-  const s = list.slice().sort((a, b) => a - b);
+  const a = (Array.isArray(list) ? list : []).filter(t => typeof t === 'number' && isFinite(t));
+  if (!a.length) return 0;
+  const s = a.slice().sort((x, y) => x - y);
   const m = s.length >> 1;
   return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
+}
+function cleanStat(s) {
+  if (!s || typeof s !== 'object') return { seen: 0, right: 0, times: [], peeks: 0 };
+  return {
+    seen: Number(s.seen) || 0,
+    right: Number(s.right) || 0,
+    times: (Array.isArray(s.times) ? s.times : []).filter(t => typeof t === 'number' && isFinite(t)).slice(-SKILL_KEEP),
+    peeks: Number(s.peeks) || 0
+  };
 }
 function medianText(list) {
   const m = medianOf(list);
@@ -2276,6 +2679,32 @@ function wire() {
   $('k-input').addEventListener('keydown', e => {
     if (e.key === 'Enter') { e.preventDefault(); submitKids(); }
   });
+  $('btn-tables').addEventListener('click', () => { audio(); renderTables(); setView('tables'); });
+  $('btn-tables-back').addEventListener('click', renderHome);
+  $('btn-tables-drill').addEventListener('click', () => {
+    audio();
+    game.tableN = tv.n;
+    startSession('table', 'easy', ['mul']);
+  });
+  $('tv-picker').addEventListener('click', e => {
+    const b = e.target.closest('[data-tv]');
+    if (!b) return;
+    tv.n = Number(b.dataset.tv);
+    renderTables();
+  });
+  $('tv-cap-picker').addEventListener('click', e => {
+    const b = e.target.closest('[data-cap]');
+    if (!b) return;
+    tv.cap = Number(b.dataset.cap);
+    renderTables();
+  });
+  $('btn-abacus').addEventListener('click', () => { audio(); abNotes(); abClear(); setView('abacus'); });
+  $('btn-ab-back').addEventListener('click', renderHome);
+  $('ab-make').addEventListener('click', () => abRun(abStepsMake($('ab-a').value)));
+  $('ab-add').addEventListener('click', () => abRun(abStepsAdd(abNumber(), $('ab-b').value)));
+  $('ab-sub').addEventListener('click', () => abRun(abStepsSub(abNumber(), $('ab-b').value)));
+  $('ab-step').addEventListener('click', abNext);
+  $('ab-reset').addEventListener('click', abClear);
   $('p-hint').addEventListener('click', () => { play.revealed = true; renderLab('Method revealed — now answer it.', 'info'); });
   $('p-next-example').addEventListener('click', () => nextLabQuestion());
   $('p-input').addEventListener('input', () => {
@@ -2296,6 +2725,10 @@ function wire() {
     if (e.key === 'Enter') { e.preventDefault(); submit(); }
   });
   document.addEventListener('keydown', e => {
+    if (!$('view-abacus').classList.contains('hidden')) {
+      if (e.key === 'Enter') { e.preventDefault(); abNext(); }
+      return;
+    }
     if (!$('view-kp').classList.contains('hidden')) {
       if (e.key === 'Enter' && document.activeElement !== $('k-input')) { e.preventDefault(); submitKids(); }
       return;

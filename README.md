@@ -35,6 +35,36 @@ Each lesson tracks seen / correct / median time. The home screen names your slow
 and flags whether you are under three seconds. A `Mixed` entry weights toward whatever is
 weakest.
 
+### Times Tables
+The back-of-the-book page, as a reference. Pick a table (1–12) and how far to go (20, 40 or
+60), and it lists every multiple: `2 × 1 = 2`, `2 × 2 = 4`, `2 × 3 = 6`, out to `2 × 30 = 60`.
+
+Each entry is colour-coded from the First Facts ladder — green means it already comes out in
+about three seconds, yellow means it is still settling. So the table doubles as a progress
+report: you can see exactly which multiples are automatic and which are not.
+
+`Practise times n` starts a 60-second drill on that one multiplier, and the range of
+questions follows the cap (2 times runs to `2 × 30`, 7 times stops at `7 × 8`).
+
+### Abacus
+A working soroban, four columns, tap the beads. The 5-bead sits above the beam and is worth
+five; the four beads below are worth one each; a whole column is worth ten times the one on
+its right.
+
+Three things you can ask it to do, each narrated one move at a time under your control (no
+auto-play, so a child decides the pace):
+
+- **Show it** — `Show it` for 243 walks through clearing the frame, then puts 2 in the
+  hundreds, 4 in the tens and 3 in the ones, one column per step. A digit of 5 gets its own
+  step, showing only the big bead lit so the point is visible.
+- **Add** — adds each column in turn, and isolates the big bead for any 5 so the shortcut is
+  explicit.
+- **Take away** — works right to left, which is why you never have to borrow across a column.
+  Asking to take away more than you have is refused in plain language rather than producing
+  a negative frame.
+
+Free play is the default: tap any bead and the readout tells you what you are looking at.
+
 ### First Facts
 For younger children. Three tracks (addition, subtraction, multiplication), each a ladder of
 rungs. The load-bearing property:
@@ -81,14 +111,19 @@ delivers the mental model in five minutes a day instead of three years.
 npm test
 ```
 
-309 assertions run against the real `index.html` with a stubbed DOM, covering:
+399 assertions run against the real `index.html` with a stubbed DOM, covering:
 
 - every generated question is arithmetically exact
 - every fact in every rung is derivable from rungs below it, and every scaffold step lands
   on the true answer
+- the scaffold for any fact on any rung is a strategy, never a fallback to counting
 - every strategy's generator honours its own precondition, and its rendered steps
   reconstruct the true answer
 - sessions contain no duplicate and no interfering pair
+- the abacus value model round-trips for 0–9999, and ~1400 additions and subtractions each
+  land on the right number with every column staying in range
+- every times-table multiple is correct for all 12 tables against all three caps
+- the table drill only ever asks the chosen multiplier
 - fact mastery, unlocking and save-file corruption recovery
 
 The suites run against the shipped file rather than a copy, so they cannot drift from what
