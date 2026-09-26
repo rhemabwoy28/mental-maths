@@ -1,0 +1,2275 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<title>Mental Maths</title>
+<style>
+:root{
+  --bg:#0a0e1a; --panel:#131a2b; --panel2:#1a2337; --line:#27324b;
+  --txt:#e9eef9; --mut:#8d9ab5; --acc:#5ee6a8; --acc2:#57c9f2; --bad:#ff6b81; --warn:#ffd166;
+  --r:14px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{
+  margin:0; background:var(--bg); color:var(--txt);
+  font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  background-image:
+    radial-gradient(900px 500px at 12% -8%, #1b2a4a 0%, transparent 60%),
+    radial-gradient(800px 500px at 92% 0%, #17313a 0%, transparent 60%);
+  background-attachment:fixed;
+}
+#app{max-width:760px;margin:0 auto;padding:18px 16px 40px}
+.hidden{display:none !important}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:14px}
+h1{font-size:1.9rem;margin:6px 0 2px;letter-spacing:-.02em}
+h2{font-size:1.05rem;margin:0 0 10px;color:var(--mut);font-weight:600;text-transform:uppercase;letter-spacing:.09em}
+.sub{color:var(--mut);margin:0 0 18px;font-size:.92rem}
+.muted{color:var(--mut)}
+.tiny{font-size:.78rem}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-variant-numeric:tabular-nums}
+label{font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:var(--mut);font-weight:700}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.pick{
+  flex:1 1 0;min-width:88px;text-align:center;background:var(--panel2);border:1px solid var(--line);
+  color:var(--txt);border-radius:11px;padding:12px 8px;cursor:pointer;font:inherit;
+}
+.pick b{display:block;font-size:1.02rem}
+.pick span{font-size:.72rem;color:var(--mut)}
+.pick:hover{border-color:#3a4a6d}
+.pick[aria-pressed="true"]{border-color:var(--acc);background:#12291f;box-shadow:inset 0 0 0 1px rgba(94,230,168,.28)}
+.pick[aria-pressed="true"] span{color:var(--acc)}
+.op{flex:0 0 auto;min-width:64px;font-size:1.5rem;padding:10px 14px;line-height:1}
+.op:nth-last-child(2),.op:last-child{font-size:1.05rem;min-width:76px}
+.op[aria-pressed="true"]{border-color:var(--acc2);background:#10222c;box-shadow:inset 0 0 0 1px rgba(87,201,242,.28)}
+.op[aria-pressed="true"] span{color:var(--acc2)}
+button{font:inherit;cursor:pointer;border-radius:11px;border:1px solid var(--line);background:var(--panel2);color:var(--txt);padding:11px 16px;transition:transform .06s ease,border-color .15s}
+button:active{transform:translateY(1px)}
+button:focus-visible,input:focus-visible,.pick:focus-visible{outline:2px solid var(--acc2);outline-offset:2px}
+.btn-main{width:100%;padding:17px;font-size:1.2rem;font-weight:700;letter-spacing:.01em;background:linear-gradient(180deg,#2ee6a0,#22b981);color:#04241a;border:0}
+.btn-main:hover{filter:brightness(1.06)}
+.btn-ghost{background:transparent}
+.btn-ghost:hover{border-color:#3a4a6d}
+.btn-danger{color:var(--bad)}
+.danger-link{background:none;border:0;color:var(--mut);font-size:.78rem;padding:6px 2px;text-decoration:underline}
+.danger-link:hover{color:var(--bad)}
+table{width:100%;border-collapse:collapse;font-size:.86rem}
+th,td{padding:7px 4px;text-align:right;border-bottom:1px solid var(--line)}
+th{color:var(--mut);font-weight:600;font-size:.72rem;text-transform:uppercase;letter-spacing:.08em}
+th:first-child,td:first-child{text-align:left}
+td.best{color:var(--acc);font-weight:700}
+
+.topbar{display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.tag{background:var(--panel2);border:1px solid var(--line);border-radius:999px;padding:5px 11px;font-size:.76rem;color:var(--mut)}
+.tag b{color:var(--txt);font-weight:600}
+.spacer{flex:1}
+.hud{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.stat{background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:9px 10px;text-align:center}
+.stat i{display:block;font-style:normal;font-size:.64rem;text-transform:uppercase;letter-spacing:.1em;color:var(--mut)}
+.stat b{font-size:1.28rem;font-weight:700}
+.stat b.hot{color:var(--acc)}
+.stat b.cold{color:var(--bad)}
+.clock{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px}
+.clock b{font-size:1.5rem;font-weight:700}
+.bar{height:6px;background:#0d1424;border-radius:99px;overflow:hidden;margin-bottom:18px}
+.bar i{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--acc2),var(--acc));transition:width .18s linear}
+.clock.urgent b{color:var(--bad);animation:pulse 1s steps(2,end) infinite}
+@keyframes pulse{50%{opacity:.35}}
+.qbox{text-align:center;padding:8px 0 16px}
+.qtext{font-size:clamp(2.1rem,8.5vw,3.5rem);font-weight:700;letter-spacing:.02em;word-break:break-word}
+.ansrow{display:flex;gap:9px;align-items:stretch}
+input[type=text]{
+  flex:1;min-width:0;text-align:center;font-size:clamp(1.6rem,7vw,2.4rem);font-weight:700;
+  padding:14px 10px;border-radius:12px;border:1px solid var(--line);background:#0d1424;color:var(--txt);
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+.submit{font-size:1.6rem;padding:0 20px;background:linear-gradient(180deg,#2ee6a0,#22b981);color:#04241a;border:0;font-weight:700}
+.fb{min-height:1.6em;margin-top:12px;text-align:center;font-weight:700;letter-spacing:.01em}
+.fb.good{color:var(--acc)} .fb.bad{color:var(--bad)} .fb.info{color:var(--mut);font-weight:500}
+.shake{animation:shake .3s}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.overlay{position:fixed;inset:0;background:rgba(6,10,20,.86);backdrop-filter:blur(3px);display:grid;place-items:center;z-index:9;padding:20px}
+.overlay .card{width:min(400px,100%);margin:0;text-align:center}
+.bigscore{font-size:3.4rem;font-weight:800;line-height:1;letter-spacing:-.02em}
+.badge{display:inline-block;background:#12291f;border:1px solid var(--acc);color:var(--acc);border-radius:999px;padding:3px 12px;font-size:.76rem;font-weight:700;margin-bottom:10px}
+.missed{list-style:none;margin:0;padding:0;text-align:left}
+.missed li{display:flex;justify-content:space-between;gap:10px;padding:8px 2px;border-bottom:1px solid var(--line);font-size:.95rem}
+.missed li em{font-style:normal;color:var(--mut);font-size:.82rem}
+.missed li s{color:var(--acc);font-weight:700}
+.note{background:#101a2b;border-left:3px solid var(--acc2);padding:8px 11px;border-radius:0 8px 8px 0;font-size:.84rem;color:var(--mut)}
+.lessons{list-style:none;margin:0;padding:0}
+.lessons li{border-bottom:1px solid var(--line);padding:11px 2px;display:flex;gap:10px;align-items:center}
+.lessons li:last-child{border-bottom:0}
+.lname{font-weight:600;display:block}
+.lrule{font-size:.76rem;color:var(--mut);display:block;margin-top:1px}
+.lskill{flex:0 0 76px}
+.lskill .bar-skill{height:5px;background:#0d1424;border-radius:99px;overflow:hidden;width:100%}
+.bar-skill i{display:block;height:100%;background:var(--acc);width:0}
+.bar-skill i.mid{background:var(--warn)}
+.bar-skill i.low{background:var(--bad)}
+.lskill span{display:block;font-size:.66rem;color:var(--mut);text-align:right;margin-top:3px}
+.steps{display:flex;flex-direction:column;gap:5px;margin:0;padding:0;list-style:none}
+.steps li{display:flex;gap:9px;align-items:baseline;font-size:.96rem}
+.steps .sn{color:var(--mut);font-size:.7rem;min-width:1.1em;font-weight:700}
+.steps .sa{margin-left:auto;font-weight:700;color:var(--acc);font-family:ui-monospace,Menlo,Consolas,monospace}
+.steps .sx{font-family:ui-monospace,Menlo,Consolas,monospace}
+.steps li.now{background:rgba(87,201,242,.09);border-radius:8px;padding:6px 8px;margin:0 -8px}
+.steps li.now .sa{color:var(--acc2)}
+.steps li.masked .sa{color:var(--mut);opacity:.55}
+.prompt{text-align:center;font-size:1.1rem;font-family:ui-monospace,Menlo,Consolas,monospace;margin:0 0 12px;min-height:1.4em;color:var(--txt)}
+.rungs{list-style:none;margin:0;padding:0}
+.rungs li{display:flex;gap:10px;align-items:center;border-bottom:1px solid var(--line);padding:10px 2px}
+.rungs li:last-child{border-bottom:0}
+.rungno{flex:0 0 30px;height:30px;border-radius:50%;background:var(--panel2);border:1px solid var(--line);display:grid;place-items:center;font-weight:700;font-size:.85rem}
+.rungs li[data-state="done"] .rungno{background:#12291f;border-color:var(--acc);color:var(--acc)}
+.rungs li[data-state="open"] .rungno{background:#10222c;border-color:var(--acc2);color:var(--acc2)}
+.rungname{font-weight:600;display:block}
+.rungmeta{font-size:.74rem;color:var(--mut);display:block}
+.rungbar{flex:0 0 64px;height:5px;background:#0d1424;border-radius:99px;overflow:hidden}
+.rungbar i{display:block;height:100%;background:var(--acc);width:0}
+.rungs li[data-state="locked"]{opacity:.45}
+#fact-wall{display:flex;flex-wrap:wrap;gap:6px}
+.fact{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.9rem;padding:6px 9px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);color:var(--mut)}
+.fact.known{border-color:var(--acc);color:var(--acc);background:#12291f}
+.fact.learning{border-color:var(--warn);color:var(--warn)}
+.beadrow{display:flex;gap:3px;align-items:center;margin:6px 0;flex-wrap:wrap}
+.b5{width:20px;height:20px;border-radius:50%;background:#1b2740;border:1px solid #33456a}
+.b5.on{background:var(--acc2);border-color:var(--acc2)}
+.b1{width:12px;height:12px;border-radius:50%;background:#1b2740;border:1px solid #33456a}
+.b1.on{background:var(--acc);border-color:var(--acc)}
+.beadlabel{font-size:.72rem;color:var(--mut);margin-right:6px;min-width:74px;font-family:ui-monospace,Menlo,Consolas,monospace}
+.colhead{font-size:.66rem;color:var(--mut);text-align:center;margin-bottom:3px;text-transform:uppercase;letter-spacing:.08em}
+.pointer{font-size:.72rem;color:var(--acc2);margin:2px 0 8px}
+.kq{font-variant-numeric:tabular-nums}
+.prompt .bl{color:var(--mut);font-size:.74rem;font-family:system-ui,sans-serif;display:block;letter-spacing:.1em;text-transform:uppercase}
+.explain{border-left:3px solid var(--acc);padding-left:12px;margin:14px 0}
+kbd{background:#0d1424;border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:1px 6px;font:inherit;font-size:.78rem;color:var(--txt)}
+@media (max-width:420px){.grid3{grid-template-columns:1fr}.hud{grid-template-columns:repeat(3,1fr)}}
+</style>
+</head>
+<body>
+<main id="app">
+
+  <section id="view-home" class="view">
+    <h1>Mental Maths</h1>
+    <p class="sub">Works offline. Everything stays on this device.</p>
+
+    <div class="card">
+      <h2>Mode</h2>
+      <div class="row" id="mode-picker">
+        <button class="pick" data-mode="sprint" type="button" aria-pressed="false"><b>60s Sprint</b><span>fast &amp; furious</span></button>
+        <button class="pick" data-mode="run" type="button" aria-pressed="false"><b>2-Min Run</b><span>longer session</span></button>
+        <button class="pick" data-mode="endless" type="button" aria-pressed="false"><b>Endless</b><span>no clock</span></button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Difficulty</h2>
+      <div class="row" id="diff-picker">
+        <button class="pick" data-diff="easy" type="button" aria-pressed="false"><b>Easy</b><span>small numbers</span></button>
+        <button class="pick" data-diff="medium" type="button" aria-pressed="false"><b>Medium</b><span>2&#8209;digit sums</span></button>
+        <button class="pick" data-diff="hard" type="button" aria-pressed="false"><b>Hard</b><span>big &amp; fast</span></button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Operations</h2>
+      <div class="row" id="op-picker">
+        <button class="pick op" data-op="add" type="button" aria-label="Addition" aria-pressed="false"><b>&#43;</b></button>
+        <button class="pick op" data-op="sub" type="button" aria-label="Subtraction" aria-pressed="false"><b>&#8722;</b></button>
+        <button class="pick op" data-op="mul" type="button" aria-label="Multiplication" aria-pressed="false"><b>&times;</b></button>
+        <button class="pick op" data-op="div" type="button" aria-label="Division" aria-pressed="false"><b>&divide;</b></button>
+        <button class="pick op" data-op="by11" type="button" aria-label="Multiply by 11" aria-pressed="false"><b>&times;11</b></button>
+        <button class="pick op" data-op="sq" type="button" aria-label="Squaring" aria-pressed="false"><b>&sup2;</b></button>
+      </div>
+      <p class="tiny muted" id="op-hint" style="margin:10px 0 0">Pick at least one. Several picked = mixed questions.</p>
+    </div>
+
+    <div class="grid2" style="margin-bottom:14px">
+      <button class="btn-main" id="btn-start" type="button">Start</button>
+      <button class="btn-main" id="btn-drill" type="button" hidden>Drill my mistakes</button>
+    </div>
+
+    <div class="card">
+      <h2>Strategy Lab</h2>
+      <p class="tiny muted" style="margin:0 0 12px">The shortcuts that turn a 30-second stall into three seconds. Eight lessons: square a number ending in 5, multiply numbers near 100, crosswise two-digit pairs, and more.</p>
+      <p class="note" id="lab-next">Nothing practised yet — start with <b>Ends in 5</b>, the easiest big win.</p>
+      <div class="row" style="margin-top:12px">
+        <button class="btn-main" id="btn-lab" type="button">Open Strategy Lab</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>First Facts</h2>
+      <p class="tiny muted" style="margin:0 0 12px">Addition, subtraction and multiplication from the ground up. Each rung only uses facts from the rungs below it, so nothing has to be guessed. Hard facts like 8 &times; 9 are saved until the pieces they are built from are solid.</p>
+      <p class="note" id="kids-next">Nothing learnt yet. Start at the bottom of the ladder.</p>
+      <div class="row" style="margin-top:12px">
+        <button class="btn-main" id="btn-kids" type="button">Open First Facts</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Personal bests</h2>
+      <table id="best-table"></table>
+      <p class="tiny muted" id="best-mix" style="margin:10px 0 0"></p>
+    </div>
+
+    <div class="card">
+      <h2>Lifetime</h2>
+      <div class="grid3">
+        <div class="stat"><i>Answered</i><b id="stat-answered">0</b></div>
+        <div class="stat"><i>Correct</i><b id="stat-correct" class="hot">0</b></div>
+        <div class="stat"><i>Accuracy</i><b id="stat-acc">&#8212;</b></div>
+      </div>
+      <p class="tiny muted" id="stat-drill" style="margin:12px 0 0"></p>
+    </div>
+
+    <div class="card">
+      <h2>Recent sessions</h2>
+      <div id="history"></div>
+    </div>
+
+    <div class="row" style="justify-content:space-between;align-items:center">
+      <button class="btn-ghost" id="btn-sound" type="button" aria-pressed="true">Sound: on</button>
+      <button class="danger-link" id="btn-reset" type="button">Reset all stats</button>
+    </div>
+
+    <p class="tiny muted" style="margin:18px 0 0;text-align:center">
+      <kbd>Enter</kbd> start / submit &nbsp; <kbd>Esc</kbd> pause &nbsp; type on the number row
+    </p>
+  </section>
+
+  <section id="view-game" class="view hidden">
+    <div class="topbar">
+      <span class="tag">Mode <b id="g-mode">&#8212;</b></span>
+      <span class="tag">Level <b id="g-diff">&#8212;</b></span>
+      <span class="spacer"></span>
+      <span class="tag">No. <b id="g-qnum">1</b></span>
+    </div>
+
+    <div class="hud">
+      <div class="stat"><i>Score</i><b id="g-score">0</b></div>
+      <div class="stat"><i>Streak</i><b id="g-streak">0</b></div>
+      <div class="stat"><i>Hits</i><b id="g-hits" class="hot">0/0</b></div>
+    </div>
+
+    <div class="clock" id="g-clock-wrap">
+      <span class="muted tiny" id="g-clock-label">Time left</span>
+      <b class="mono" id="g-clock">1:00</b>
+    </div>
+    <div class="bar"><i id="g-bar"></i></div>
+
+    <div class="qbox">
+      <div class="qtext mono" id="g-question">&#8230;</div>
+    </div>
+
+    <div class="ansrow">
+      <input type="text" id="g-input" inputmode="numeric" autocomplete="off" autocapitalize="off"
+             spellcheck="false" placeholder="answer" aria-label="Your answer">
+      <button class="submit" id="g-submit" type="button" aria-label="Submit answer">&#9166;</button>
+    </div>
+    <p class="fb" id="g-feedback">&nbsp;</p>
+  </section>
+
+  <section id="view-over" class="view hidden">
+    <div class="topbar">
+      <span class="tag" id="r-mode">&#8212;</span>
+      <span class="tag" id="r-diff">&#8212;</span>
+      <span class="spacer"></span>
+      <span class="tag" id="r-when">&#8212;</span>
+    </div>
+
+    <div class="card" style="text-align:center">
+      <div id="r-badge"></div>
+      <h2 style="text-transform:none;letter-spacing:0;font-size:.95rem;margin-bottom:8px" id="r-title">Time's up</h2>
+      <div class="bigscore mono" id="r-score">0</div>
+      <p class="tiny muted" id="r-bonus" style="margin:8px 0 0"></p>
+    </div>
+
+    <div class="card">
+      <div class="grid2">
+        <div class="stat"><i>Correct</i><b id="r-correct" class="hot">0</b></div>
+        <div class="stat"><i>Accuracy</i><b id="r-acc">&#8212;</b></div>
+        <div class="stat"><i>Best streak</i><b id="r-streak">0</b></div>
+        <div class="stat"><i>Avg speed</i><b id="r-speed">&#8212;</b></div>
+      </div>
+    </div>
+
+    <div class="card" id="r-missed-card">
+      <h2>Worth practising</h2>
+      <ul class="missed" id="r-missed"></ul>
+      <p class="tiny muted" id="r-missed-more" style="margin:10px 0 0"></p>
+      <div class="row" style="margin-top:12px">
+        <button class="btn-main" id="btn-drill2" type="button">Drill these</button>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <button class="btn-main" id="btn-again" type="button">Play again</button>
+      <button id="btn-settings" type="button">Change settings</button>
+    </div>
+  </section>
+
+  <section id="view-lab" class="view hidden">
+    <div class="topbar">
+      <button class="btn-ghost" id="btn-lab-back" type="button">&#8592; Menu</button>
+      <span class="spacer"></span>
+    </div>
+    <h1 style="font-size:1.5rem">Strategy Lab</h1>
+    <p class="sub">One shortcut at a time, eight questions per session.</p>
+
+    <div class="card">
+      <h2>How to practise</h2>
+      <div class="row" id="teach-picker">
+        <button class="pick" data-teach="example" type="button" aria-pressed="false"><b>Worked example</b><span>see it done, then try</span></button>
+        <button class="pick" data-teach="steps" type="button" aria-pressed="false"><b>Type every step</b><span>hardest, quickest to learn</span></button>
+        <button class="pick" data-teach="hint" type="button" aria-pressed="false"><b>Reveal after</b><span>speed drill</span></button>
+      </div>
+      <p class="tiny muted" style="margin:12px 0 0" id="teach-hint"></p>
+    </div>
+
+    <div class="card">
+      <h2>Lessons</h2>
+      <ul class="lessons" id="lesson-list"></ul>
+    </div>
+  </section>
+
+  <section id="view-play" class="view hidden">
+    <div class="topbar">
+      <span class="tag">Lesson <b id="p-lesson">&#8212;</b></span>
+      <span class="tag">Q <b id="p-qnum">1</b>/8</span>
+      <span class="spacer"></span>
+      <button class="btn-ghost" id="btn-play-quit" type="button">End</button>
+    </div>
+
+    <div class="hud">
+      <div class="stat"><i>Score</i><b id="p-score">0</b></div>
+      <div class="stat"><i>Streak</i><b id="p-streak">0</b></div>
+      <div class="stat"><i>Right</i><b id="p-hits" class="hot">0/0</b></div>
+    </div>
+
+    <div class="qbox"><div class="qtext mono" id="p-question">&#8230;</div></div>
+
+    <p class="prompt" id="p-prompt">&nbsp;</p>
+
+    <div class="card" id="p-method">
+      <h2 id="p-step-label">Method</h2>
+      <ul class="steps" id="p-steps"></ul>
+      <p class="tiny muted" id="p-why" style="margin:12px 0 0"></p>
+    </div>
+
+    <div id="p-ask">
+      <div class="ansrow" id="p-ansrow">
+        <input type="text" id="p-input" inputmode="numeric" autocomplete="off" autocapitalize="off"
+               spellcheck="false" placeholder="answer" aria-label="Your answer">
+        <button class="submit" id="p-submit" type="button" aria-label="Submit">&#9166;</button>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <button class="btn-ghost" id="p-hint" type="button" hidden>Show method</button>
+        <button class="btn-main" id="p-next-example" type="button" hidden style="flex:1">My turn &#8212; start the 8 questions</button>
+      </div>
+      <p class="fb" id="p-feedback">&nbsp;</p>
+    </div>
+
+    <div class="card hidden" id="p-summary">
+      <h2>Session done</h2>
+      <div class="grid3">
+        <div class="stat"><i>Right</i><b id="s-right" class="hot">0/0</b></div>
+        <div class="stat"><i>Median time</i><b id="s-median">&#8212;</b></div>
+        <div class="stat"><i>Best streak</i><b id="s-streak">0</b></div>
+      </div>
+      <p class="tiny muted" id="s-note" style="margin:12px 0 0"></p>
+      <div class="row" style="margin-top:14px">
+        <button class="btn-main" id="btn-lab-again" type="button" style="flex:1">Practise this again</button>
+        <button id="btn-lab-home" type="button">All lessons</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="view-kids" class="view hidden">
+    <div class="topbar">
+      <button class="btn-ghost" id="btn-kids-back" type="button">&#8592; Menu</button>
+      <span class="spacer"></span>
+    </div>
+    <h1 style="font-size:1.5rem">First Facts</h1>
+    <p class="sub">Small steps. Each rung only uses the rungs below it.</p>
+
+    <div class="card">
+      <h2>Choose a track</h2>
+      <div class="row" id="track-picker">
+        <button class="pick" data-track="add" type="button" aria-pressed="false"><b>+</b><span>Addition</span></button>
+        <button class="pick" data-track="sub" type="button" aria-pressed="false"><b>&minus;</b><span>Subtraction</span></button>
+        <button class="pick" data-track="mul" type="button" aria-pressed="false"><b>&times;</b><span>Multiplication</span></button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>The ladder</h2>
+      <ul class="rungs" id="rung-list"></ul>
+      <p class="tiny muted" id="rung-note" style="margin:12px 0 0"></p>
+    </div>
+
+    <div class="card">
+      <h2>Facts I know</h2>
+      <p class="tiny muted" style="margin:0 0 10px">Green means it comes out in about three seconds without thinking. Yellow is still settling. Grey is new.</p>
+      <div id="fact-wall"></div>
+    </div>
+  </section>
+
+  <section id="view-kp" class="view hidden">
+    <div class="topbar">
+      <span class="tag">Rung <b id="k-rung">1</b></span>
+      <span class="tag">Question <b id="k-qnum">1</b> of 10</span>
+      <span class="spacer"></span>
+      <button class="btn-ghost" id="btn-kids-quit" type="button">Stop</button>
+    </div>
+
+    <div class="hud">
+      <div class="stat"><i>Right</i><b id="k-right" class="hot">0</b></div>
+      <div class="stat"><i>Peeked</i><b id="k-peeked">0</b></div>
+      <div class="stat"><i>New facts</i><b id="k-new">0</b></div>
+    </div>
+
+    <div class="qbox">
+      <div class="qtext" id="k-question" style="font-size:clamp(2.6rem,12vw,4.6rem)">&#8230;</div>
+      <p class="tiny muted" id="k-status" style="margin:10px 0 0"></p>
+    </div>
+
+    <div class="card" id="k-help">
+      <h2 id="k-help-label">How to work it out</h2>
+      <div id="k-beads"></div>
+      <ul class="steps" id="k-steps"></ul>
+      <p class="tiny muted" id="k-why" style="margin:12px 0 0"></p>
+    </div>
+
+    <div class="ansrow" id="k-ansrow">
+      <input type="text" id="k-input" inputmode="numeric" autocomplete="off" autocapitalize="off"
+             spellcheck="false" placeholder="answer" aria-label="Your answer">
+      <button class="submit" id="k-submit" type="button" aria-label="Submit">&#9166;</button>
+    </div>
+    <div class="row" style="margin-top:10px" id="k-row">
+      <button class="btn-ghost" id="k-hint" type="button" style="flex:1">Show me how</button>
+    </div>
+    <p class="fb" id="k-feedback">&nbsp;</p>
+
+    <div class="card hidden" id="k-summary">
+      <h2>Well done</h2>
+      <div class="grid3">
+        <div class="stat"><i>Right</i><b id="ks-right" class="hot">0/10</b></div>
+        <div class="stat"><i>New facts</i><b id="ks-new">0</b></div>
+        <div class="stat"><i>Fastest</i><b id="ks-fast">&#8212;</b></div>
+      </div>
+      <p class="tiny muted" id="ks-note" style="margin:12px 0 0"></p>
+      <ul class="missed" id="ks-next"></ul>
+      <div class="row" style="margin-top:14px">
+        <button class="btn-main" id="btn-kids-again" type="button" style="flex:1">Go again</button>
+        <button id="btn-kids-ladder" type="button">The ladder</button>
+      </div>
+    </div>
+  </section>
+
+  <div id="pause-veil" class="overlay hidden">
+    <div class="card">
+      <h2 style="text-transform:none;letter-spacing:0">Paused</h2>
+      <p class="tiny muted" style="margin:0 0 16px">The clock is stopped.</p>
+      <div class="row" style="flex-direction:column">
+        <button class="btn-main" id="btn-resume" type="button">Resume</button>
+        <button class="btn-ghost" id="btn-quit" type="button">End session</button>
+      </div>
+    </div>
+  </div>
+
+</main>
+<script>
+'use strict';
+
+const SAVE_KEY = 'mentalmaths.v1';
+const OP_ORDER = ['add', 'sub', 'mul', 'div', 'by11', 'sq'];
+const OP_SIGN = { add: '+', sub: '−', mul: '×', div: '÷', by11: '×11', sq: '²' };
+const OP_NAME = { add: 'Addition', sub: 'Subtraction', mul: 'Multiplication', div: 'Division', by11: 'Multiply by 11', sq: 'Squaring' };
+const MODE_INFO = {
+  sprint: { label: '60s Sprint', time: 60 },
+  run: { label: '2-Min Run', time: 120 },
+  endless: { label: 'Endless', time: 0 },
+  drill: { label: 'Drill', time: 0 },
+  lab: { label: 'Strategy Lab', time: 0 }
+};
+const DIFF_LABEL = { easy: 'Easy', medium: 'Medium', hard: 'Hard' };
+const LIMITS = {
+  easy: { add: [[1, 20], [1, 20]], sub: [[1, 20], [0, 20]], mul: [[2, 10], [2, 10]], div: [[2, 10], [2, 12]], by11: [[2, 9], [11, 11]], sq: [[2, 15], [2, 15]] },
+  medium: { add: [[2, 99], [2, 99]], sub: [[2, 99], [0, 99]], mul: [[2, 15], [2, 15]], div: [[3, 15], [3, 20]], by11: [[11, 99], [11, 11]], sq: [[10, 35], [10, 35]] },
+  hard: { add: [[10, 999], [10, 999]], sub: [[10, 999], [0, 999]], mul: [[4, 25], [4, 25]], div: [[4, 25], [6, 99]], by11: [[100, 9999], [11, 11]], sq: [[20, 99], [20, 99]] }
+};
+const SCORE_PER_HIT = 10;
+const MAX_MULT = 5;
+const HISTORY_MAX = 8;
+const MISSED_SHOWN = 6;
+const LAB_LENGTH = 8;
+const SKILL_KEEP = 20;
+
+const $ = id => document.getElementById(id);
+const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
+const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+const fmt = n => Math.abs(n) >= 1000 ? n.toLocaleString('en-US') : String(n);
+const clockText = s => Math.floor(s / 60) + ':' + String(Math.floor(s % 60)).padStart(2, '0');
+const pad2 = n => String(n).padStart(2, '0');
+const pad3 = n => String(n).padStart(3, '0');
+const step = (label, expr, answer) => ({ label: label, expr: expr, answer: answer });
+
+const VARIANTS = {
+  halve: [
+    { k: 5, label: '×5', rule: 'multiply by 10, halve it', by: 10, div: 2 },
+    { k: 25, label: '×25', rule: 'multiply by 100, quarter it', by: 100, div: 4 },
+    { k: 50, label: '×50', rule: 'multiply by 100, halve it', by: 100, div: 2 }
+  ],
+  nine: [
+    { op: 'mul', k: 9, shift: 10, label: '×9', rule: 'shift by ten, take one n back' },
+    { op: 'mul', k: 99, shift: 100, label: '×99', rule: 'shift by a hundred, take one n back' },
+    { op: 'add', k: 9, shift: 10, label: '+9', rule: 'add ten, then take one off' }
+  ]
+};
+const variantFor = (group, k) => VARIANTS[group].filter(v => v.k === k)[0] || VARIANTS[group][0];
+
+const STRATEGIES = [
+  {
+    id: 'end5',
+    name: 'Ends in 5',
+    rule: 'n…5 squared = n × (n+1), then write 25',
+    why: 'Writing the number as 10n+5, the square is 100n² + 100n + 25 — so everything except the last two digits is n(n+1), and 25 never changes.',
+    op: 'sq',
+    make: function (diff) {
+      const lo = diff === 'easy' ? [1, 9] : diff === 'medium' ? [10, 24] : [25, 99];
+      const p = ri(lo);
+      return buildQuestion('sq', diff, p * 10 + 5);
+    },
+    accepts: q => q.op === 'sq' && q.a % 10 === 5,
+    steps: q => {
+      const p = (q.a - 5) / 10;
+      return [
+        step('Split it', q.a + ' is ' + p + '…5, so the digits in front are ' + p, null),
+        step('One more, then multiply', p + ' × ' + (p + 1), p * (p + 1)),
+        step('Write 25 on the end', 'glue 25 onto it', q.answer)
+      ];
+    }
+  },
+  {
+    id: 'near',
+    name: 'Numbers near 100 / 1000',
+    rule: '(B−a)(B−b) = (B−a−b) then a×b',
+    why: 'Expanding gives B² − B(a+b) + a×b, so the answer splits into a left half and a right half. You never multiply the big numbers at all — just two tiny deficits.',
+    op: 'mul',
+    make: function (diff) {
+      const span = diff === 'easy' ? 5 : diff === 'medium' ? 7 : 9;
+      const base = diff === 'easy' ? 100 : (Math.random() < 0.5 ? 100 : 1000);
+      const a = ri([1, span]);
+      let b = ri([1, span]);
+      if (b === a) b = a === span ? a - 1 : a + 1;
+      const sign = diff === 'hard' && Math.random() < 0.4 ? 1 : -1;
+      return buildQuestion('mul', diff, base + sign * a, base + sign * b);
+    },
+    accepts: function (q) {
+      if (q.op !== 'mul') return false;
+      const near = base => Math.abs(q.a - base) <= 9 && Math.abs(q.b - base) <= 9;
+      return near(100) || near(1000);
+    },
+    steps: q => {
+      const base = Math.abs(q.a - 100) <= 9 ? 100 : 1000;
+      const a = q.a - base;
+      const b = q.b - base;
+      const left = base + a + b;
+      const right = Math.abs(a * b);
+      const pad = base === 100 ? pad2 : pad3;
+      const chain = base + ' ' + (a < 0 ? '−' : '+') + Math.abs(a) + ' ' + (b < 0 ? '−' : '+') + Math.abs(b);
+      return [
+        step('Find the deficits', q.a + ' is ' + Math.abs(a) + ' from ' + base + ', ' + q.b + ' is ' + Math.abs(b), null),
+        step('Cross the base off', chain, left),
+        step('Multiply the deficits', a + ' × ' + b, right),
+        step('Join them', 'right half is always ' + base / 100 + ' digits, so ' + pad(right), q.answer)
+      ];
+    }
+  },
+  {
+    id: 'crosswise',
+    name: 'Crosswise two-digit pairs',
+    rule: 'units, then the crosswise sum, then tens',
+    why: 'Each output digit is the sum of the digit products that land in that place, so one pass writes the whole answer — no partial-product grid to hold in your head.',
+    op: 'mul',
+    make: function (diff) {
+      const lo = diff === 'easy' ? [11, 29] : diff === 'medium' ? [11, 59] : [11, 99];
+      let a = ri(lo);
+      let b = ri(lo);
+      if (a === b) b = b === lo[1] ? b - 1 : b + 1;
+      return buildQuestion('mul', diff, a, b);
+    },
+    accepts: function (q) { return q.op === 'mul' && q.a >= 10 && q.a <= 99 && q.b >= 10 && q.b <= 99; },
+    steps: q => {
+      const x = Math.floor(q.a / 10), y = q.a % 10, u = Math.floor(q.b / 10), v = q.b % 10;
+      return [
+        step('Units, straight down', y + ' × ' + v, y * v),
+        step('Crosswise, both ways', x + '×' + v + ' + ' + y + '×' + u, x * v + y * u),
+        step('Tens, straight down', x + ' × ' + u, x * u),
+        step('Write it with carries', 'right to left, carrying', q.answer)
+      ];
+    }
+  },
+  {
+    id: 'fromround',
+    name: 'Subtract from a round number',
+    rule: 'B − n = (B−1−n) + 1',
+    why: 'B−1 is all nines, so the subtraction is a straight digitwise complement with nothing to borrow — then add the 1 back on the end.',
+    op: 'sub',
+    make: function (diff) {
+      const base = diff === 'easy' ? 100 : 1000;
+      const lo = diff === 'easy' ? [11, 98] : diff === 'medium' ? [101, 899] : [101, 999];
+      return buildQuestion('sub', diff, base, ri(lo));
+    },
+    accepts: function (q) { return q.op === 'sub' && (q.a === 100 || q.a === 1000) && q.b > 0 && q.b < q.a; },
+    steps: q => {
+      const base = q.a;
+      const nines = base - 1;
+      return [
+        step('Go one lower', base + ' − ' + q.b + ' = (' + nines + ' − ' + q.b + ') + 1', null),
+        step('Take from all nines', nines + ' − ' + q.b, nines - q.b),
+        step('Add the 1 back on', (nines - q.b) + ' + 1', q.answer)
+      ];
+    }
+  },
+  {
+    id: 'times11',
+    name: 'Multiply by 11',
+    rule: 'add each digit to its right-hand neighbour',
+    why: '11 is ten plus one, so each digit of the answer is that digit plus the one to its left — the neighbour rule is just the school column method standing on its head.',
+    op: 'by11',
+    make: function (diff) {
+      const lo = diff === 'easy' ? [11, 99] : diff === 'medium' ? [101, 999] : [1000, 9999];
+      return buildQuestion('by11', diff, ri(lo));
+    },
+    accepts: q => q.op === 'by11' && q.b === 11,
+    steps: q => {
+      const d = String(q.a).split('').map(Number);
+      const out = [{ label: 'Neighbour sums', expr: d.map((v, i) => i < d.length - 1 ? v + '+' + d[i + 1] : String(v)).join('  '), answer: null }];
+      for (let i = 0; i < d.length - 1; i++) out.push(step('Carry from the right', d[i] + ' + ' + d[i + 1], d[i] + d[i + 1]));
+      out.push(step('Read it off', 'start again with ' + d[0], q.answer));
+      return out;
+    }
+  },
+  {
+    id: 'squarenear',
+    name: 'Square near a round number',
+    rule: 'a² = (a−b)(a+b) + b²',
+    why: 'The difference of squares (a−b)(a+b) is a product of two numbers sitting either side of a — and if a−b is round, that product is one of the easy multiplications you already know.',
+    op: 'sq',
+    make: function (diff) {
+      const rounds = diff === 'easy' ? [10, 20, 30, 40, 50] : diff === 'medium' ? [10, 20, 30, 40, 50, 60, 70, 80, 90] : [10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120];
+      const offs = diff === 'easy' ? [1, 2, 3] : diff === 'medium' ? [1, 2, 3, 4, 5] : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12];
+      const r = pick(rounds);
+      const b = pick(offs);
+      const q = buildQuestion('sq', diff, r + b);
+      q.decomp = { r: r, b: b };
+      return q;
+    },
+    accepts: q => q.op === 'sq',
+    steps: q => {
+      const d = q.decomp || (() => {
+        const rem = q.a % 10;
+        const b = rem === 0 ? 10 : (rem > 5 ? 10 - rem : rem);
+        return { r: q.a - b, b: b };
+      })();
+      const r = d.r, b = d.b;
+      return [
+        step('Pick a round neighbour', q.a + ' is ' + r + ' + ' + b, null),
+        step('Difference of squares', r + ' × ' + (q.a + b), r * (q.a + b)),
+        step('Then the leftover square', b + '²', b * b),
+        step('Add the two halves', r + '×' + (q.a + b) + ' + ' + (b * b), q.answer)
+      ];
+    }
+  },
+  {
+    id: 'halve',
+    name: 'Multiply by 5, 25 and 50',
+    rule: '×5 = ×10 ÷ 2, ×25 = ×100 ÷ 4, ×50 = ×100 ÷ 2',
+    why: 'Multiplying by a power of ten is free, and halving is the easiest division there is — so these three are really just a shift followed by a halving.',
+    op: 'mul',
+    make: function (diff) {
+      const v = pick(VARIANTS.halve);
+      const lo = diff === 'easy' ? [2, 99] : diff === 'medium' ? [11, 999] : [101, 9999];
+      return buildQuestion('mul', diff, ri(lo), v.k);
+    },
+    accepts: function (q) { return q.op === 'mul' && (q.b === 5 || q.b === 25 || q.b === 50); },
+    steps: q => {
+      const v = variantFor('halve', q.b);
+      const up = q.a * v.by;
+      return [
+        step('Name the trick', v.label + ': ' + v.rule, null),
+        step('Shift first', q.a + ' × ' + v.by, up),
+        step(v.div === 4 ? 'Then quarter it' : 'Then halve it', up + ' ÷ ' + v.div, q.answer)
+      ];
+    }
+  },
+  {
+    id: 'nine',
+    name: 'The 9 family',
+    rule: '×9 = ×10 − n, ×99 = ×100 − n, +9 = +10 − 1',
+    why: 'Every one of these is one shift plus one small subtraction, because 9, 99 and 10 are neighbours of each other.',
+    op: 'mul',
+    make: function (diff) {
+      const v = pick(VARIANTS.nine);
+      const lo = diff === 'easy' ? [11, 99] : diff === 'medium' ? [101, 999] : [1001, 9999];
+      const n = ri(lo);
+      return buildQuestion(v.op, diff, n, v.k);
+    },
+    accepts: function (q) { return (q.op === 'mul' && (q.b === 9 || q.b === 99)) || (q.op === 'add' && q.b === 9); },
+    steps: q => {
+      const isAdd = q.op === 'add';
+      const v = isAdd ? VARIANTS.nine[2] : variantFor('nine', q.b);
+      const up = isAdd ? q.a + v.shift : q.a * v.shift;
+      return [
+        step('Name the trick', v.label + ': ' + v.rule, null),
+        step('Shift first', q.a + ' ' + (isAdd ? '+ ' + v.shift : '× ' + v.shift), up),
+        step('Then the small subtraction', up + ' ' + (isAdd ? '− 1' : '− ' + q.a), q.answer)
+      ];
+    }
+  }
+];
+const STRATEGY_BY_ID = {};
+STRATEGIES.forEach(s => { STRATEGY_BY_ID[s.id] = s; });
+const TEACH_LABEL = { example: 'Worked example', steps: 'Type every step', hint: 'Reveal after' };
+const TEACH_HINT = {
+  example: 'One question is walked through for you, then eight more to do yourself.',
+  steps: 'You type every intermediate result. Hardest to start, fastest to make automatic.',
+  hint: 'Answer first, then open the method to see what you should have done.'
+};
+
+/* ---------- First Facts: the ladder and its derivations ---------- */
+
+const factKey = (op, a, b) => op + ':' + a + ':' + b;
+const factAns = (op, a, b) => op === 'add' ? a + b : op === 'sub' ? a - b : a * b;
+const factText = (op, a, b) => op === 'mul' ? a + ' × ' + b : op === 'add' ? a + ' + ' + b : a + ' − ' + b;
+const beadGroups = n => ({ fives: Math.floor(n / 5), ones: n % 5 });
+
+function isKnownFact(op, a, b, known) {
+  if (known.has(factKey(op, a, b))) return true;
+  if (op === 'mul' || op === 'add') return known.has(factKey(op, b, a));
+  return false;
+}
+function needKnown(op, a, b, known, out) {
+  out.push(factKey(op, a, b));
+  if (op === 'mul' || op === 'add') out.push(factKey(op, b, a));
+}
+function mkStep(label, expr, answer) { return { label: label, expr: expr, answer: answer }; }
+
+function derive(op, a, b, known) {
+  const need = [];
+  const ans = factAns(op, a, b);
+
+  if (op === 'mul') {
+    const x = a, y = b;
+    if (y === 0) return { steps: [mkStep('Anything times zero', 'n × 0 = 0', ans)], need: [], why: 'There is nothing to count, so the answer is always 0.' };
+    if (x === 0) return { steps: [mkStep('Zero times anything', '0 × n = 0', ans)], need: [], why: 'Counting zero groups of something gives nothing.' };
+    if (y === 1) return { steps: [mkStep('Times one', 'n × 1 = n', ans)], need: [], why: 'One group of n is just n itself.' };
+    if (x === 1) return { steps: [mkStep('One group', '1 × n = n', ans)], need: [], why: 'One group of n is just n itself.' };
+    if (y === 2 || x === 2) {
+      const n = y === 2 ? x : y;
+      return { steps: [mkStep('Doubles', n + ' + ' + n, ans)], need: [], why: 'Two groups means the same as adding the number to itself.' };
+    }
+    if (y === 10 || x === 10) {
+      const n = y === 10 ? x : y;
+      return { steps: [mkStep('Times ten', n + ' × 10 = ' + n + ' then put a zero', ans)], need: [], why: 'Ten groups of n is n with a zero on the end.' };
+    }
+    if (y === 5 || x === 5) {
+      const n = y === 5 ? x : y;
+      if (isKnownFact('mul', n, 10, known) || isKnownFact('mul', 10, n, known)) {
+        return { steps: [
+          mkStep('Times ten first', n + ' × 10 = ' + n * 10, n * 10),
+          mkStep('Then halve it', (n * 10) + ' ÷ 2', ans)
+        ], need: [factKey('mul', n, 10)], why: 'Halving of ten is the same as five times, so ×5 is ×10 followed by halving.' };
+      }
+    }
+    if (y === 9 || x === 9) {
+      const n = y === 9 ? x : y;
+      if (isKnownFact('mul', n, 10, known) || isKnownFact('mul', 10, n, known)) {
+        return { steps: [
+          mkStep('Times ten first', n + ' × 10 = ' + n * 10, n * 10),
+          mkStep('Then take one group back', (n * 10) + ' − ' + n, ans)
+        ], need: [factKey('mul', n, 10)], why: 'Ten groups is one group too many, so ×9 is ×10 with a single n taken away.' };
+      }
+    }
+    if (x === y) {
+      if (isKnownFact('mul', x, x - 1, known)) {
+        return { steps: [
+          mkStep('One group short', x + ' × ' + (x - 1) + ' = ' + (x * (x - 1)), x * (x - 1)),
+          mkStep('Add one more group', (x * (x - 1)) + ' + ' + x, ans)
+        ], need: [factKey('mul', x, x - 1)], why: 'A square is the group below it with one more group added.' };
+      }
+    }
+    if (isKnownFact('mul', x, y - 1, known)) {
+      return { steps: [
+        mkStep('One group short', x + ' × ' + (y - 1) + ' = ' + (x * (y - 1)), x * (y - 1)),
+        mkStep('Add one more group', (x * (y - 1)) + ' + ' + x, ans)
+      ], need: [factKey('mul', x, y - 1)], why: 'Add another group of x to the one below it.' };
+    }
+    if (y > x && isKnownFact('mul', y, x - 1, known)) {
+      return { steps: [
+        mkStep('One group short', y + ' × ' + (x - 1) + ' = ' + (y * (x - 1)), y * (x - 1)),
+        mkStep('Add one more group', (y * (x - 1)) + ' + ' + y, ans)
+      ], need: [factKey('mul', y, x - 1)], why: 'Turn it round and count the groups the other way, which is often easier.' };
+    }
+    if (x % 2 === 0 && isKnownFact('mul', x / 2, y, known)) {
+      return { steps: [
+        mkStep('Halve the groups', (x / 2) + ' × ' + y + ' = ' + (x / 2 * y), x / 2 * y),
+        mkStep('Then double it', (x / 2 * y) + ' × 2', ans)
+      ], need: [factKey('mul', x / 2, y)], why: 'Double the number of groups, double the answer.' };
+    }
+    return { steps: [mkStep('Count in groups', 'count on ' + y + ' times', ans)], need: [], why: 'Not built from anything you know yet, so this one gets practised as a whole.' };
+  }
+
+  if (op === 'add') {
+    if (b === 0) return { steps: [mkStep('Add nothing', 'n + 0 = n', ans)], need: [], why: 'Adding nothing leaves the number as it is.' };
+    if (a === 0) return { steps: [mkStep('Start at nothing', '0 + n = n', ans)], need: [], why: 'The same as a + 0 — addition can go either way round.' };
+    if (b === 1) return { steps: [mkStep('One more', a + ' + 1 = the next number', ans)], need: [], why: 'Add one means say the next number after ' + a + '.' };
+    if (b === 2) return { steps: [mkStep('Two more', a + ' + 1, + 1', ans)], need: [], why: 'Counting on by twos from ' + a + '.' };
+    if (b === 10) return { steps: [mkStep('Add a ten', a + ' + 10 = ' + a + ' with a ten more', ans)], need: [], why: 'Ten more is one more ten.' };
+    if (a === b) {
+      if (isKnownFact('add', a, a - 1, known)) {
+        return { steps: [
+          mkStep('One less', a + ' + ' + (a - 1) + ' = ' + (a + a - 1), a + a - 1),
+          mkStep('Add the last one', (a + a - 1) + ' + 1', ans)
+        ], need: [factKey('add', a, a - 1)], why: 'A double is one short of the next double.' };
+      }
+    }
+    if (a % 2 === 0 && isKnownFact('add', a / 2, b, known)) {
+      return { steps: [
+        mkStep('Halve the first number', (a / 2) + ' + ' + b + ' = ' + (a / 2 + b), a / 2 + b),
+        mkStep('Then double it', (a / 2 + b) + ' + ' + (a / 2 + b), ans)
+      ], need: [factKey('add', a / 2, b)], why: 'Double the first number, double the answer.' };
+    }
+    if (b <= 5) {
+      return { steps: [mkStep('Count on', 'start at ' + a + ' and count on ' + b, ans)], need: [], why: 'Counting on from the bigger number is quicker than counting everything.' };
+    }
+    if (isKnownFact('add', a, b - 1, known)) {
+      return { steps: [
+        mkStep('One less', a + ' + ' + (b - 1) + ' = ' + (a + b - 1), a + b - 1),
+        mkStep('Add the last one', (a + b - 1) + ' + 1', ans)
+      ], need: [factKey('add', a, b - 1)], why: 'Build it up one at a time.' };
+    }
+    if (isKnownFact('add', 10, a, known) && isKnownFact('add', b - 10, 10, known)) {
+      return { steps: [
+        mkStep('Make ten', a + ' + ' + (10 - a) + ' = 10', 10),
+        mkStep('Use what is left', (b - 10) + ' + 10', ans)
+      ], need: [factKey('add', a, 10 - a)], why: 'Fill the gap up to ten first, then add what is left over.' };
+    }
+    return { steps: [mkStep('Count on', 'start at ' + a + ' and count on ' + b, ans)], need: [], why: 'Not built from anything you know yet.' };
+  }
+
+  if (a <= b) return { steps: [mkStep('Start at a', 'count back from ' + a + ', ' + b + ' steps', ans)], need: [], why: 'Take away means counting back.' };
+  if (b === 0) return { steps: [mkStep('Take nothing', 'n − 0 = n', ans)], need: [], why: 'Taking away nothing leaves the number as it is.' };
+  if (b === 1) return { steps: [mkStep('One less', a + ' − 1 = the number before ' + a, ans)], need: [], why: 'One less means the number just before ' + a + '.' };
+  if (b === 2) return { steps: [mkStep('Halve it', a + ' ÷ 2', ans)], need: [], why: 'Taking away two is the same as halving.' };
+  if (b === 10) return { steps: [mkStep('Take a ten', a + ' − 10', ans)], need: [], why: 'Taking a ten away is one step down.' };
+  if (a === b) return { steps: [mkStep('All of it', a + ' − ' + a + ' = 0', ans)], need: [], why: 'Taking away all of it leaves nothing.' };
+  if (a > 10 && a % 10 >= b && isKnownFact('add', a % 10, b, known)) {
+    const ones = a % 10;
+    return { steps: [
+      mkStep('Split the ten off', a + ' is 10 and ' + ones, 10 + ones),
+      mkStep('Take away from the ones', ones + ' − ' + b + ' = ' + (ones - b), ones - b),
+      mkStep('Put the ten back', (ones - b) + ' + 10', ans)
+    ], need: [factKey('add', ones, b)], why: 'Only the ones have to do the work. The ten is untouched, so take it off, work on the ones, and put it back.' };
+  }
+  if (b % 5 === 0 && a >= b) {
+    return { steps: [mkStep('Take the fives', a + ' − ' + b, ans)], need: [], why: 'Five at a time is the easiest way to take things away.' };
+  }
+  if (a - b < 10 && a > 10 && isKnownFact('add', a - 10, 10 - (a - b), known)) {
+    return { steps: [
+      mkStep('Down to ten', a + ' − ' + (a - 10) + ' = 10', 10),
+      mkStep('The rest of the way', '10 − ' + b + ' = ' + ans, ans)
+    ], need: [factKey('add', a - 10, 10)], why: 'Back down to ten, then finish from there.' };
+  }
+  if (isKnownFact('sub', a, b - 1, known)) {
+    return { steps: [
+      mkStep('One less to take', a + ' − ' + (b - 1) + ' = ' + (a - b + 1), a - b + 1),
+      mkStep('Take the last one', (a - b + 1) + ' − 1', ans)
+    ], need: [factKey('sub', a, b - 1)], why: 'Take away one at a time.' };
+  }
+  if (isKnownFact('add', a - b, b, known)) {
+    return { steps: [mkStep('Put it back', (a - b) + ' + ' + b + ' = ' + a, ans)], need: [factKey('add', a - b, b)], why: 'The answer is what you add on to get back to the start.' };
+  }
+  return { steps: [mkStep('Count back', 'start at ' + a + ' and take away ' + b, ans)], need: [], why: 'Not built from anything you know yet.' };
+}
+
+const RUNGS = {
+  mul: [
+    { id: 'm1', name: 'Nothing, itself, and doubles', facts: col(0, 0, 5).concat(col(1, 0, 5), col(2, 0, 5)), why: 'The three anchors. Once these are automatic, everything else in this track can be built out of them.' },
+    { id: 'm2', name: 'Times ten', facts: col(10, 1, 9), why: 'Ten groups of something is that something with a zero on the end. This rung is the key to every times-nine.' },
+    { id: 'm3', name: 'Times five', facts: col(5, 1, 9), why: 'Five is half of ten, so borrow the times-ten rung and halve it.' },
+    { id: 'm4', name: 'The rest of the twos', facts: col(2, 6, 9), why: 'Still just adding the number to itself.' },
+    { id: 'm5', name: 'Times three', facts: col(3, 3, 9), why: 'Threes build on doubles and on the times-ten rung.' },
+    { id: 'm6', name: 'Times four', facts: col(4, 4, 9), why: 'Fours are the twos doubled again.' },
+    { id: 'm7', name: 'Times six', facts: col(6, 6, 9), why: 'Here 6 times 7 finally appears, but not until 6 times 6 is solid.' },
+    { id: 'm8', name: 'Times seven', facts: col(7, 7, 9), why: 'Seventens come off 7 times 6 and 7 times 10.' },
+    { id: 'm9', name: 'Times eight', facts: col(8, 8, 9), why: '8 times 9 is not a new idea: it is 8 times 10 with one 8 taken back.' },
+    { id: 'm10', name: 'Nine squared', facts: [[9, 9]], why: 'The very last fact. It is 9 times 8 with one more 9.' }
+  ],
+  add: [
+    { id: 'a1', name: 'Nothing, one more, and doubles', facts: col(0, 1, 5).concat(col(1, 1, 5), col(2, 2, 5), col(3, 3, 4), col(4, 4, 4), col(5, 5, 5)), why: 'The starting anchors: add nothing, add one, and add a number to itself.' },
+    { id: 'a2', name: 'Add ten', facts: col(10, 1, 9), why: 'Ten more is one more ten. This is the rung that makes the nine easy later.' },
+    { id: 'a3', name: 'Counting on by twos and threes', facts: col(2, 6, 9).concat(col(3, 5, 9)), why: 'Counting on from the bigger number, never counting everything.' },
+    { id: 'a4', name: 'Add four and five', facts: col(4, 5, 9).concat(col(5, 6, 9)), why: 'Fours and fives come out of the twos rung.' },
+    { id: 'a5', name: 'Add six', facts: col(6, 6, 9), why: 'Sixes come from fives and threes.' },
+    { id: 'a6', name: 'Add seven', facts: col(7, 6, 9), why: 'Fill the gap up to ten first, then add what is left over.' },
+    { id: 'a7', name: 'Add eight and nine', facts: col(8, 7, 9).concat(col(9, 8, 9)), why: 'The last rung. Both are make-ten plus what is left.' }
+  ],
+  sub: [
+    { id: 's1', name: 'Take nothing, one, or two', facts: col(0, 1, 9).concat(col(1, 2, 9), col(2, 3, 9)), why: 'One less is the number before. Taking two away is halving.' },
+    { id: 's2', name: 'Take a ten', facts: col(10, 11, 20), why: 'Down one ten in a single step.' },
+    { id: 's3', name: 'Take fives', facts: col(5, 6, 20), why: 'Five at a time is the easiest pace to count back.' },
+    { id: 's4', name: 'Take three and four', facts: col(3, 4, 9).concat(col(4, 5, 9), col(4, 13, 20)), why: 'One at a time off the fives, or count back in threes.' },
+    { id: 's5', name: 'Take six and seven', facts: col(6, 7, 9).concat(col(7, 8, 9), col(6, 13, 20), col(7, 13, 20)), why: 'Back down to ten, then finish from there.' },
+    { id: 's6', name: 'Take eight and nine', facts: col(8, 9, 9).concat(col(9, 10, 10), col(8, 13, 20), col(9, 13, 20)), why: 'The last rung: take a ten, then give one back.' }
+  ]
+};
+
+function col(b, aLo, aHi) {
+  const out = [];
+  for (let a = aLo; a <= aHi; a++) out.push([a, b]);
+  return out;
+}
+function dedupeRungs() {
+  ['mul', 'add', 'sub'].forEach(track => {
+    const seen = new Set();
+    const kept = [];
+    RUNGS[track].forEach(r => {
+      r.facts = r.facts.map(f => (track === 'mul' ? (f[0] <= f[1] ? f : [f[1], f[0]]) : f.slice()));
+      r.facts = r.facts.filter(f => {
+        const k = f[0] + 'x' + f[1];
+        if (seen.has(k)) return false;
+        seen.add(k);
+        return true;
+      });
+      if (r.facts.length) kept.push(r);
+    });
+    RUNGS[track] = kept;
+  });
+}
+dedupeRungs();
+function allFacts(track) {
+  const out = [];
+  RUNGS[track].forEach((r, i) => r.facts.forEach(f => out.push({ op: track, a: f[0], b: f[1], rung: i, key: factKey(track, f[0], f[1]) })));
+  return out;
+}
+
+function factStat(k) {
+  if (!save.facts) save.facts = {};
+  if (!save.facts[k]) save.facts[k] = { seen: 0, right: 0, times: [], peeks: 0 };
+  return save.facts[k];
+}
+function factState(k) {
+  const s = save.facts ? save.facts[k] : null;
+  if (!s || !s.seen) return 'new';
+  const fast = s.right >= 3 && medianOf(s.times) > 0 && medianOf(s.times) <= 3000;
+  if (s.right >= 3 && (fast || !s.times.length)) return fast ? 'known' : 'learning';
+  return s.right > 0 ? 'learning' : 'new';
+}
+function rungProgress(track, i) {
+  const r = RUNGS[track][i];
+  let known = 0, seen = 0;
+  r.facts.forEach(f => {
+    const st = factState(factKey(track, f[0], f[1]));
+    if (st === 'known') known++;
+    if (st !== 'new') seen++;
+  });
+  return { known: known, seen: seen, total: r.facts.length, done: r.facts.length > 0 && known === r.facts.length };
+}
+function openRung(track) {
+  for (let i = 0; i < RUNGS[track].length; i++) {
+    const p = rungProgress(track, i);
+    if (!p.done) return i;
+  }
+  return RUNGS[track].length - 1;
+}
+let KNOWN_CACHE = null;
+function knownFacts() {
+  if (KNOWN_CACHE) return KNOWN_CACHE;
+  const set = new Set();
+  ['mul', 'add', 'sub'].forEach(track => {
+    for (let i = 0; i < RUNGS[track].length; i++) {
+      RUNGS[track][i].facts.forEach(f => set.add(factKey(track, f[0], f[1])));
+      if (i === openRung(track)) break;
+    }
+  });
+  KNOWN_CACHE = set;
+  return set;
+}
+function invalidateFacts() { KNOWN_CACHE = null; }
+
+function factOperands(op, a, b) {
+  return op === 'mul' || op === 'add' ? [Math.min(a, b), Math.max(a, b)] : [a, b];
+}
+function sameFact(op, a, b, c, d) {
+  const A = factOperands(op, a, b);
+  const B = factOperands(op, c, d);
+  return A[0] === B[0] && A[1] === B[1];
+}
+const SOFT_OPERANDS = new Set([0, 1, 2, 10]);
+function clashesForSession(op, a, b, c, d) {
+  if (sameFact(op, a, b, c, d)) return true;
+  const A = factOperands(op, a, b);
+  const B = factOperands(op, c, d);
+  for (let i = 0; i < A.length; i++) {
+    for (let j = 0; j < B.length; j++) {
+      if (A[i] !== B[j] || SOFT_OPERANDS.has(A[i])) continue;
+      const otherA = A[1 - i];
+      const otherB = B[1 - j];
+      if (SOFT_OPERANDS.has(otherA) || SOFT_OPERANDS.has(otherB)) continue;
+      if (Math.abs(otherA - otherB) <= 1) return true;
+    }
+  }
+  return false;
+}
+
+const kids = {
+  track: 'mul', rung: 0, qs: [], qi: 0, right: 0, peeks: 0, newFacts: 0, newKeys: new Set(),
+  cur: null, done: false, peeked: false, startedAt: 0, fast: [], shown: [], revealed: false
+};
+
+function shuffle(list) {
+  const a = list.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    const t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+
+function buildKidsSession(track, rungIdx) {
+  const reviewPool = [];
+  for (let i = 0; i < rungIdx; i++) RUNGS[track][i].facts.forEach(f => reviewPool.push([f[0], f[1]]));
+  const newPool = allFacts(track).filter(f => f.rung === rungIdx).map(f => [f.a, f.b]);
+  const newKeys = new Set(newPool.map(f => factKey(track, f[0], f[1])));
+  const nRev = Math.min(5, reviewPool.length);
+  const newShuffled = shuffle(newPool);
+  const reviewShuffled = shuffle(reviewPool);
+  const wantReview = new Set(reviewShuffled.slice(0, nRev).map(f => factKey(track, f[0], f[1])));
+  const target = Math.min(10, newPool.length + reviewPool.length);
+
+  const conflicts = (list, c) => {
+    for (let j = 0; j < list.length; j++) if (clashesForSession(track, list[j][0], list[j][1], c[0], c[1])) return true;
+    return false;
+  };
+  const strictFill = order => {
+    const out = [];
+    const used = new Set();
+    for (let i = 0; i < order.length && out.length < target; i++) {
+      const c = order[i];
+      const k = factKey(track, c[0], c[1]);
+      if (used.has(k) || conflicts(out, c)) continue;
+      used.add(k);
+      out.push(c);
+    }
+    return out;
+  };
+
+  let best = [];
+  for (let attempt = 0; attempt < 20; attempt++) {
+    const order = attempt === 0
+      ? newShuffled.concat(reviewShuffled)
+      : shuffle(newShuffled.concat(reviewShuffled));
+    const got = strictFill(order);
+    if (got.length > best.length) best = got;
+    if (best.length >= target) break;
+  }
+
+  const chosen = best.slice();
+  const used = new Set(chosen.map(c => factKey(track, c[0], c[1])));
+  if (chosen.length < target) {
+    shuffle(newPool.concat(reviewPool)).forEach(c => {
+      const k = factKey(track, c[0], c[1]);
+      if (chosen.length >= target || used.has(k)) return;
+      if (conflicts(chosen, c)) return;
+      used.add(k);
+      chosen.push(c);
+    });
+  }
+  if (chosen.length < target) {
+    shuffle(newPool.concat(reviewPool)).forEach(c => {
+      const k = factKey(track, c[0], c[1]);
+      if (chosen.length >= target || used.has(k)) return;
+      used.add(k);
+      chosen.push(c);
+    });
+  }
+  return { list: chosen, newKeys: newKeys, wantReview: wantReview };
+}
+
+function startKids(track, rungIdx) {
+  kids.track = track;
+  kids.rung = rungIdx;
+  const built = buildKidsSession(track, rungIdx);
+  kids.qs = built.list;
+  kids.newKeys = built.newKeys;
+  kids.qi = 0; kids.right = 0; kids.peeks = 0; kids.newFacts = 0;
+  kids.done = false; kids.fast = []; kids.shown = []; kids.revealed = false;
+  $('k-summary').classList.add('hidden');
+  $('k-help').classList.remove('hidden');
+  setView('kp');
+  nextKidsQuestion();
+}
+
+function nextKidsQuestion() {
+  if (kids.qi >= kids.qs.length) { endKids(); return; }
+  kids.qi += 1;
+  const f = kids.qs[kids.qi - 1];
+  kids.cur = { op: kids.track, a: f[0], b: f[1] };
+  kids.cur.answer = factAns(kids.cur.op, kids.cur.a, kids.cur.b);
+  kids.cur.der = derive(kids.cur.op, kids.cur.a, kids.cur.b, knownFacts());
+  kids.peeked = false;
+  kids.revealed = false;
+  kids.startedAt = performance.now();
+  $('k-question').textContent = factText(kids.cur.op, kids.cur.a, kids.cur.b) + ' =';
+  const st = factState(kids.cur.key || factKey(kids.cur.op, kids.cur.a, kids.cur.b));
+  $('k-status').textContent = st === 'known' ? 'You know this one' : st === 'learning' ? 'Still settling' : 'New fact';
+  $('k-row').classList.remove('hidden');
+  $('k-hint').classList.remove('hidden');
+  $('k-rung').textContent = kids.rung + 1;
+  $('k-qnum').textContent = kids.qi;
+  $('k-ansrow').classList.remove('hidden');
+  renderKidsHelp(false);
+  updateKidsHud();
+  $('k-input').value = '';
+  const fb = $('k-feedback');
+  fb.textContent = ' ';
+  fb.className = 'fb';
+  $('k-input').focus();
+}
+
+function renderKidsHelp(revealed) {
+  const d = kids.cur.der;
+  $('k-help-label').textContent = revealed ? 'How to work it out' : 'A clue is here if you want it';
+  const list = $('k-steps');
+  list.innerHTML = '';
+  const show = revealed;
+  d.steps.forEach((s, i) => {
+    const li = document.createElement('li');
+    const n = document.createElement('span');
+    n.className = 'sn';
+    n.textContent = String(i + 1);
+    const x = document.createElement('span');
+    x.className = 'sx';
+    x.textContent = s.label + ' — ' + s.expr;
+    const a = document.createElement('span');
+    a.className = 'sa';
+    a.textContent = show ? String(s.answer) : '?';
+    li.appendChild(n); li.appendChild(x); li.appendChild(a);
+    if (!show) li.className = 'masked';
+    list.appendChild(li);
+  });
+  $('k-why').textContent = show ? d.why : '';
+  renderBeads(kids.cur, show);
+}
+
+function renderBeads(cur, show) {
+  const box = $('k-beads');
+  box.innerHTML = '';
+  if (cur.op === 'mul') {
+    const rows = cur.a <= cur.b ? [['groups', cur.a], ['in each', cur.b]] : [['groups', cur.b], ['in each', cur.a]];
+    const head = document.createElement('p');
+    head.className = 'colhead';
+    head.textContent = show ? 'the picture behind it' : '';
+    box.appendChild(head);
+    rows.forEach(r => {
+      const line = document.createElement('div');
+      line.className = 'beadrow';
+      const lab = document.createElement('span');
+      lab.className = 'beadlabel';
+      lab.textContent = r[0] + ' = ' + r[1];
+      line.appendChild(lab);
+      const g = beadGroups(r[1]);
+      for (let i = 0; i < g.fives; i++) { const b = document.createElement('span'); b.className = 'b5 on'; line.appendChild(b); }
+      for (let i = 0; i < g.ones; i++) { const b = document.createElement('span'); b.className = 'b1 on'; line.appendChild(b); }
+      if (!r[1]) { const z = document.createElement('span'); z.className = 'tiny muted'; z.textContent = 'nothing'; line.appendChild(z); }
+      box.appendChild(line);
+    });
+    if (show && cur.b === 10) {
+      const p = document.createElement('p');
+      p.className = 'pointer';
+      p.textContent = 'ten in each group is one full row of ten — that is why times ten is easy';
+      box.appendChild(p);
+    }
+  } else {
+    const head = document.createElement('p');
+    head.className = 'colhead';
+    head.textContent = show ? 'count the beads' : '';
+    box.appendChild(head);
+    const line = document.createElement('div');
+    line.className = 'beadrow';
+    const lab = document.createElement('span');
+    lab.className = 'beadlabel';
+    lab.textContent = cur.op === 'add' ? 'start' : 'start at';
+    line.appendChild(lab);
+    const g = beadGroups(cur.a);
+    for (let i = 0; i < g.fives; i++) { const b = document.createElement('span'); b.className = 'b5 on'; line.appendChild(b); }
+    for (let i = 0; i < g.ones; i++) { const b = document.createElement('span'); b.className = 'b1 on'; line.appendChild(b); }
+    box.appendChild(line);
+    if (show && cur.op === 'add') {
+      const g2 = beadGroups(cur.a + cur.b);
+      const line2 = document.createElement('div');
+      line2.className = 'beadrow';
+      const lab2 = document.createElement('span');
+      lab2.className = 'beadlabel';
+      lab2.textContent = 'then';
+      line2.appendChild(lab2);
+      for (let i = 0; i < g2.fives; i++) { const b = document.createElement('span'); b.className = 'b5 on'; line2.appendChild(b); }
+      for (let i = 0; i < g2.ones; i++) { const b = document.createElement('span'); b.className = 'b1 on'; line2.appendChild(b); }
+      box.appendChild(line2);
+    }
+  }
+}
+
+function updateKidsHud() {
+  $('k-right').textContent = kids.right;
+  $('k-peeked').textContent = kids.peeks;
+  $('k-new').textContent = kids.newFacts;
+}
+
+function submitKids() {
+  if (kids.done) return;
+  const raw = $('k-input').value.replace(/[^0-9-]/g, '');
+  const v = raw === '' || raw === '-' ? null : parseInt(raw, 10);
+  const fb = $('k-feedback');
+  if (v === null) {
+    fb.textContent = 'Type a number first';
+    fb.className = 'fb info';
+    return;
+  }
+  const spent = performance.now() - kids.startedAt;
+  const k = factKey(kids.cur.op, kids.cur.a, kids.cur.b);
+  const st = factStat(k);
+  st.seen += 1;
+  if (kids.peeked) st.peeks += 1;
+
+  if (v === kids.cur.answer) {
+    st.right += 1;
+    if (!kids.peeked) st.times.push(Math.round(spent));
+    if (st.times.length > 20) st.times.shift();
+    kids.right += 1;
+    if (!kids.peeked) kids.fast.push(spent);
+    const before = factState(k);
+    sfx.good();
+    renderKidsHelp(true);
+    const now = factState(k);
+    const fresh = before !== 'known' && now === 'known';
+    if (fresh) kids.newFacts += 1;
+    invalidateFacts();
+    persist();
+    updateKidsHud();
+    fb.textContent = fresh ? 'That one is now yours — you got it in about ' + (spent / 1000).toFixed(1) + 's' : 'Correct';
+    fb.className = 'fb good';
+    $('k-row').classList.add('hidden');
+    setTimeout(() => { if (!kids.done) nextKidsQuestion(); }, fresh ? 1500 : 800);
+    return;
+  }
+
+  sfx.bad();
+  $('k-input').classList.remove('shake');
+  void $('k-input').offsetWidth;
+  $('k-input').classList.add('shake');
+  renderKidsHelp(true);
+  persist();
+  updateKidsHud();
+  fb.textContent = 'Not this time — it is ' + kids.cur.answer + '. Here is how.';
+  fb.className = 'fb bad';
+  $('k-row').classList.add('hidden');
+  setTimeout(() => { if (!kids.done) nextKidsQuestion(); }, 2200);
+}
+
+function endKids() {
+  if (kids.done) return;
+  kids.done = true;
+  const total = kids.qs.length;
+  const fast = kids.fast.length;
+  const med = medianOf(kids.fast);
+  $('k-ansrow').classList.add('hidden');
+  $('k-row').classList.add('hidden');
+  $('k-help').classList.add('hidden');
+  $('k-summary').classList.remove('hidden');
+  $('ks-right').textContent = kids.right + '/' + total;
+  $('ks-new').textContent = kids.newFacts;
+  $('ks-fast').textContent = fast ? (Math.min.apply(null, kids.fast) / 1000).toFixed(1) + 's' : '—';
+  let note = kids.right + ' out of ' + total + ', ' + fast + ' without peeking.';
+  if (fast >= 6 && med <= 3000) note += ' Under three seconds each — that rung is nearly done.';
+  else if (fast >= 6) note += ' A bit slow still; the same rung again will settle it.';
+  else note += ' Peek as often as you like — that is what it is for.';
+  $('ks-note').textContent = note;
+  const nextR = openRung(kids.track);
+  const list = $('ks-next');
+  list.innerHTML = '';
+  if (nextR > kids.rung) {
+    const li = document.createElement('li');
+    const t = document.createElement('span');
+    t.textContent = 'Rung ' + (nextR + 1) + ' unlocked: ' + RUNGS[kids.track][nextR].name;
+    list.appendChild(t);
+  } else {
+    const li = document.createElement('li');
+    const t = document.createElement('span');
+    t.textContent = 'Rung ' + (kids.rung + 1) + ' still needs a few more — press Go again.';
+    list.appendChild(t);
+  }
+  if (kids.right) {
+    save.totals.answered += total;
+    save.totals.correct += kids.right;
+    persist();
+  }
+  sfx.over();
+}
+
+function renderKidsMenu() {
+  $('track-picker').querySelectorAll('[data-track]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.track === kids.track)));
+  const list = $('rung-list');
+  list.innerHTML = '';
+  const op = openRung(kids.track);
+  RUNGS[kids.track].forEach((r, i) => {
+    const p = rungProgress(kids.track, i);
+    const state = p.done ? 'done' : (i === op ? 'open' : (i < op ? 'open' : 'locked'));
+    const li = document.createElement('li');
+    li.dataset.state = state;
+    const no = document.createElement('span');
+    no.className = 'rungno';
+    no.textContent = p.done ? '✓' : String(i + 1);
+    const mid = document.createElement('div');
+    const nm = document.createElement('span');
+    nm.className = 'rungname';
+    nm.textContent = r.name;
+    const mt = document.createElement('span');
+    mt.className = 'rungmeta';
+    mt.textContent = p.total + ' facts' + (state === 'locked' ? ' — locked until the one above is done' : ' — ' + p.known + ' of ' + p.total + ' known');
+    mid.appendChild(nm);
+    mid.appendChild(mt);
+    const bar = document.createElement('span');
+    bar.className = 'rungbar';
+    const fill = document.createElement('i');
+    fill.style.width = (p.total ? Math.round(p.known / p.total * 100) : 0) + '%';
+    bar.appendChild(fill);
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.textContent = state === 'locked' ? 'Locked' : 'Practise';
+    btn.disabled = state === 'locked';
+    btn.addEventListener('click', function () { audio(); startKids(kids.track, i); });
+    li.appendChild(no); li.appendChild(mid); li.appendChild(bar); li.appendChild(btn);
+    list.appendChild(li);
+  });
+  $('rung-note').textContent = 'A rung opens when you reach it. Rung ' + (op + 1) + ' is where you are now.';
+  const wall = $('fact-wall');
+  wall.innerHTML = '';
+  allFacts(kids.track).forEach(f => {
+    const st = factState(f.key);
+    const el = document.createElement('span');
+    el.className = 'fact ' + st;
+    el.textContent = factText(f.op, f.a, f.b) + ' =';
+    el.title = st;
+    wall.appendChild(el);
+  });
+  $('kids-next').textContent = kidsNextText();
+  setView('kids');
+}
+
+function kidsNextText() {
+  const counts = { mul: 0, add: 0, sub: 0 };
+  ['mul', 'add', 'sub'].forEach(t => {
+    allFacts(t).forEach(f => { if (factState(f.key) === 'known') counts[t] += 1; });
+  });
+  const started = counts.mul + counts.add + counts.sub;
+  if (!started) return 'Nothing learnt yet. Start at rung 1 of any track — it is all anchors, no guessing.';
+  return 'Known so far: ' + counts.mul + ' × facts, ' + counts.add + ' additions, ' + counts.sub + ' subtractions. Facts that come out in about three seconds count as known.';
+}
+
+
+function blankSave() {
+  return { best: {}, totals: { answered: 0, correct: 0 }, history: [], mistakes: {}, skills: {}, facts: {}, prefs: { mode: 'sprint', diff: 'easy', ops: ['add', 'sub', 'mul', 'div'], sound: true, teach: 'steps' } };
+}
+
+let save = blankSave();
+try {
+  const raw = localStorage.getItem(SAVE_KEY);
+  if (raw) {
+    const parsed = JSON.parse(raw);
+    const base = blankSave();
+    save = {
+      best: parsed.best && typeof parsed.best === 'object' ? parsed.best : base.best,
+      totals: Object.assign({}, base.totals, parsed.totals || {}),
+      history: Array.isArray(parsed.history) ? parsed.history : base.history,
+      mistakes: parsed.mistakes && typeof parsed.mistakes === 'object' ? parsed.mistakes : base.mistakes,
+      skills: parsed.skills && typeof parsed.skills === 'object' ? parsed.skills : base.skills,
+      facts: parsed.facts && typeof parsed.facts === 'object' ? parsed.facts : base.facts,
+      prefs: Object.assign({}, base.prefs, parsed.prefs || {})
+    };
+    if (!Array.isArray(save.prefs.ops) || !save.prefs.ops.length) save.prefs.ops = base.prefs.ops;
+    save.prefs.ops = save.prefs.ops.filter(o => OP_ORDER.indexOf(o) > -1);
+    if (!save.prefs.ops.length) save.prefs.ops = base.prefs.ops;
+    if (['example', 'steps', 'hint'].indexOf(save.prefs.teach) < 0) save.prefs.teach = 'steps';
+  }
+} catch (err) { save = blankSave(); }
+
+function persist() {
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify(save)); } catch (err) { /* storage full or blocked */ }
+}
+
+function ri(range) { return range[0] + Math.floor(Math.random() * (range[1] - range[0] + 1)); }
+
+function buildQuestion(op, diff, a, b) {
+  const lim = LIMITS[diff] || LIMITS.easy;
+  if (op === 'div') {
+    const dividend = a != null ? a : ri(lim.div[1]) * ri(lim.div[0]);
+    const divisor = b != null ? b : ri(lim.div[0]);
+    return { op, diff, a: dividend, b: divisor, answer: dividend / divisor, text: fmt(dividend) + ' ÷ ' + fmt(divisor) + ' =' };
+  }
+  if (op === 'sq') {
+    const x = a != null ? a : ri(lim.sq[0]);
+    return { op, diff, a: x, b: a != null ? a : x, answer: x * x, text: fmt(x) + '² =' };
+  }
+  if (op === 'by11') {
+    const x = a != null ? a : ri(lim.by11[0]);
+    return { op, diff, a: x, b: 11, answer: x * 11, text: fmt(x) + ' × 11 =' };
+  }
+  const x = a != null ? a : ri(lim[op][0]);
+  const y = b != null ? b : ri(lim[op][1]);
+  if (op === 'add') return { op, diff, a: x, b: y, answer: x + y, text: fmt(x) + ' + ' + fmt(y) + ' =' };
+  if (op === 'sub') return { op, diff, a: x, b: y, answer: x - y, text: fmt(x) + ' − ' + fmt(y) + ' =' };
+  return { op, diff, a: x, b: y, answer: x * y, text: fmt(x) + ' × ' + fmt(y) + ' =' };
+}
+
+function makeQuestion(op, diff) {
+  const lim = LIMITS[diff] || LIMITS.easy;
+  if (op === 'sub' && diff !== 'hard') {
+    const a = ri(lim.sub[0]);
+    return buildQuestion('sub', diff, a, ri([0, a]));
+  }
+  if (op === 'div') {
+    const divisor = ri(lim.div[0]);
+    return buildQuestion('div', diff, divisor * ri(lim.div[1]), divisor);
+  }
+  return buildQuestion(op, diff);
+}
+
+function qLabel(q) {
+  if (!q) return '';
+  if (q.op === 'sq') return fmt(q.a) + '²';
+  return fmt(q.a) + ' ' + (OP_SIGN[q.op] || '?') + ' ' + fmt(q.b);
+}
+
+function mistakeKey(q) { return q.op + ':' + q.a + ':' + q.b; }
+
+function multiplier(streak) { return Math.min(MAX_MULT, 1 + Math.floor(streak / 5) * 0.5); }
+
+function nextQuestion() {
+  if (game.mode === 'drill') {
+    const keys = Object.keys(save.mistakes);
+    if (!keys.length) return null;
+    const entry = save.mistakes[pick(keys)];
+    const src = entry && entry.q ? entry.q : null;
+    return buildQuestion(src ? src.op : pick(game.ops), src ? src.diff : game.diff, src ? src.a : undefined, src ? src.b : undefined);
+  }
+  return makeQuestion(pick(game.ops), game.diff);
+}
+
+const game = {
+  mode: 'sprint', diff: 'easy', ops: ['add', 'sub', 'mul', 'div'],
+  score: 0, streak: 0, bestStreak: 0, correct: 0, answered: 0, qnum: 0,
+  remaining: 0, paused: false, over: false, lastAt: 0, q: null, timeMs: 0, qStart: 0
+};
+
+let audioCtx = null;
+function audio() {
+  if (!audioCtx) {
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    if (Ctx) audioCtx = new Ctx();
+  }
+  if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+  return audioCtx;
+}
+function tone(freq, ms, type, vol) {
+  if (!save.prefs.sound) return;
+  const ctx = audio();
+  if (!ctx) return;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = type || 'sine';
+  osc.frequency.value = freq;
+  gain.gain.value = vol == null ? 0.07 : vol;
+  gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + ms / 1000);
+  osc.connect(gain).connect(ctx.destination);
+  osc.start();
+  osc.stop(ctx.currentTime + ms / 1000);
+}
+const sfx = {
+  good: () => { tone(680, 70, 'triangle'); tone(1020, 60, 'sine', 0.045); },
+  bad: () => { tone(150, 150, 'square', 0.05); },
+  tick: () => tone(1180, 40, 'sine', 0.03),
+  over: () => { tone(520, 110, 'triangle'); setTimeout(() => tone(780, 140, 'triangle'), 110); }
+};
+
+function setView(name) {
+  ['home', 'lab', 'play', 'kids', 'kp', 'game', 'over'].forEach(v => $('view-' + v).classList.toggle('hidden', v !== name));
+}
+
+function startSession(mode, diff, ops) {
+  game.mode = mode;
+  game.diff = diff;
+  game.ops = ops && ops.length ? ops.slice() : ['add', 'sub', 'mul', 'div'];
+  game.score = 0; game.streak = 0; game.bestStreak = 0;
+  game.correct = 0; game.answered = 0; game.qnum = 0;
+  game.paused = false; game.over = false; game.timeMs = 0;
+  game.remaining = MODE_INFO[mode].time;
+  game.lastAt = performance.now();
+  $('pause-veil').classList.add('hidden');
+  $('g-mode').textContent = MODE_INFO[mode].label;
+  $('g-diff').textContent = DIFF_LABEL[diff];
+  $('g-clock-label').textContent = MODE_INFO[mode].time ? 'Time left' : 'No clock';
+  setView('game');
+  newQuestion();
+  updateHud();
+  $('g-input').focus();
+  requestAnimationFrame(loop);
+}
+
+function newQuestion(msg, cls) {
+  const q = nextQuestion();
+  if (!q) { finish('bank-empty'); return; }
+  game.qnum += 1;
+  game.q = q;
+  game.qStart = performance.now();
+  $('g-question').textContent = game.q.text;
+  $('g-input').value = '';
+  $('g-qnum').textContent = game.qnum;
+  const fb = $('g-feedback');
+  fb.textContent = msg || ' ';
+  fb.className = msg ? 'fb ' + cls : 'fb';
+  $('g-input').focus();
+}
+
+function updateHud() {
+  $('g-score').textContent = game.score;
+  $('g-streak').textContent = game.streak;
+  $('g-hits').textContent = game.correct + '/' + game.answered;
+  const total = MODE_INFO[game.mode].time;
+  if (total) {
+    $('g-clock').textContent = clockText(game.remaining);
+    $('g-bar').style.width = clamp((game.remaining / total) * 100, 0, 100) + '%';
+    $('g-clock-wrap').classList.toggle('urgent', game.remaining <= 10);
+  } else {
+    $('g-clock').textContent = '∞';
+    $('g-bar').style.width = '100%';
+    $('g-clock-wrap').classList.remove('urgent');
+  }
+}
+
+function loop(now) {
+  if (game.over) return;
+  const dt = now - game.lastAt;
+  game.lastAt = now;
+  if (game.paused) { requestAnimationFrame(loop); return; }
+  if (MODE_INFO[game.mode].time) {
+    const before = Math.ceil(game.remaining);
+    game.remaining = Math.max(0, game.remaining - dt / 1000);
+    if (before <= 5 && Math.ceil(game.remaining) < before) sfx.tick();
+    if (game.remaining <= 0) { updateHud(); finish('time'); return; }
+  }
+  updateHud();
+  requestAnimationFrame(loop);
+}
+
+function readAnswer() {
+  const raw = $('g-input').value.replace(/[^0-9-]/g, '');
+  if (raw === '' || raw === '-') return null;
+  const n = parseInt(raw, 10);
+  return isNaN(n) ? null : n;
+}
+
+function submit() {
+  if (game.over) return;
+  if (game.paused) { resume(); return; }
+  if (!game.q) return;
+  const value = readAnswer();
+
+  if (value === null) {
+    game.streak = 0;
+    updateHud();
+    newQuestion('Skipped', 'info');
+    return;
+  }
+
+  game.answered += 1;
+  const spent = performance.now() - game.qStart;
+
+  if (value === game.q.answer) {
+    const mult = multiplier(game.streak);
+    const gained = Math.round(SCORE_PER_HIT * mult);
+    game.score += gained;
+    game.correct += 1;
+    game.timeMs += spent;
+    game.streak += 1;
+    game.bestStreak = Math.max(game.bestStreak, game.streak);
+    if (game.mode === 'drill') creditDrill(game.q);
+    sfx.good();
+    updateHud();
+    const tail = game.streak >= 5 ? '  ×' + multiplier(game.streak).toFixed(1).replace(/\.0$/, '') + ' combo' : '';
+    newQuestion('Correct  +' + gained + tail, 'good');
+    return;
+  }
+
+  const key = mistakeKey(game.q);
+  const entry = save.mistakes[key] || { n: 0, q: game.q };
+  entry.n += 1;
+  entry.q = { op: game.q.op, diff: game.q.diff, a: game.q.a, b: game.q.b };
+  save.mistakes[key] = entry;
+  persist();
+  game.streak = 0;
+  sfx.bad();
+  updateHud();
+  $('g-input').classList.remove('shake');
+  void $('g-input').offsetWidth;
+  $('g-input').classList.add('shake');
+  newQuestion('No — it was ' + game.q.answer, 'bad');
+}
+
+function creditDrill(q) {
+  const key = mistakeKey(q);
+  const entry = save.mistakes[key];
+  if (!entry) return;
+  entry.n -= 1;
+  if (entry.n <= 0) delete save.mistakes[key];
+  persist();
+}
+
+function pause() {
+  if (game.over || game.paused) return;
+  game.paused = true;
+  $('pause-veil').classList.remove('hidden');
+}
+
+function resume() {
+  if (game.over) return;
+  game.paused = false;
+  game.lastAt = performance.now();
+  $('pause-veil').classList.add('hidden');
+  $('g-input').focus();
+}
+
+function finish(reason) {
+  if (game.over) return;
+  game.over = true;
+  sfx.over();
+  const total = MODE_INFO[game.mode].time;
+  const bonus = total ? Math.floor(game.remaining) * 5 : 0;
+  const finalScore = game.score + bonus;
+
+  const acc = game.answered ? Math.round((game.correct / game.answered) * 100) : 0;
+  const key = game.mode + '|' + game.diff + '|' + (game.mode === 'drill' ? 'all' : game.ops.slice().sort().join(','));
+  const prevBest = Number(save.best[key] || 0);
+  const isBest = finalScore > prevBest;
+  if (isBest) save.best[key] = finalScore;
+  save.totals.answered += game.answered;
+  save.totals.correct += game.correct;
+  save.history.unshift({
+    mode: game.mode, diff: game.diff, score: finalScore, acc: acc, correct: game.correct,
+    answered: game.answered, when: new Date().toISOString()
+  });
+  save.history = save.history.slice(0, HISTORY_MAX);
+  persist();
+  renderResults(reason, finalScore, bonus, acc, isBest);
+  $('btn-again').textContent = game.mode === 'drill'
+    ? (Object.keys(save.mistakes).length ? 'Drill again' : 'Back to menu')
+    : 'Play again';
+}
+
+function renderResults(reason, finalScore, bonus, acc, isBest) {
+  setView('over');
+  $('r-mode').textContent = MODE_INFO[game.mode].label;
+  $('r-diff').textContent = DIFF_LABEL[game.diff];
+  $('r-when').textContent = new Date().toLocaleString(undefined, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+  $('r-title').textContent = reason === 'quit' ? 'Session ended'
+    : reason === 'bank-empty' ? 'Bank empty — all clear'
+    : game.mode === 'drill' ? 'Drill over'
+    : 'Time is up';
+  $('r-badge').innerHTML = isBest ? '<span class="badge">New personal best</span>' : '';
+  $('r-score').textContent = finalScore;
+  $('r-bonus').textContent = bonus > 0 ? 'includes ' + bonus + ' time-bonus points' : '';
+  $('r-correct').textContent = game.correct + '/' + game.answered;
+  $('r-acc').textContent = game.answered ? acc + '%' : '—';
+  $('r-streak').textContent = game.bestStreak;
+  const avg = game.correct ? game.timeMs / game.correct / 1000 : 0;
+  $('r-speed').textContent = avg ? avg.toFixed(1) + 's' : '—';
+
+  const rows = Object.keys(save.mistakes)
+    .map(k => save.mistakes[k])
+    .filter(e => e && e.q)
+    .sort((x, y) => y.n - x.n);
+  const list = $('r-missed');
+  list.innerHTML = '';
+  rows.slice(0, MISSED_SHOWN).forEach(entry => {
+    const q = entry.q;
+    const li = document.createElement('li');
+    const left = document.createElement('span');
+    left.textContent = qLabel(q);
+    const right = document.createElement('em');
+    right.textContent = '= ' + fmt(buildQuestion(q.op, q.diff, q.a, q.b).answer);
+    const miss = document.createElement('em');
+    miss.textContent = ' missed ×' + entry.n;
+    li.appendChild(left);
+    li.appendChild(right);
+    li.appendChild(miss);
+    list.appendChild(li);
+  });
+  $('r-missed-card').classList.toggle('hidden', rows.length === 0);
+  $('r-missed-more').textContent = rows.length > MISSED_SHOWN ? 'and ' + (rows.length - MISSED_SHOWN) + ' more…' : '';
+  $('btn-drill2').disabled = rows.length === 0;
+}
+
+function renderBest() {
+  const cols = ['easy', 'medium', 'hard'];
+  const mix = save.prefs.ops.slice().sort().join(',');
+  let html = '<tr><th>Mode</th>' + cols.map(c => '<th' + (c === save.prefs.diff ? ' style="color:var(--acc)"' : '') + '>' + DIFF_LABEL[c] + '</th>').join('') + '</tr>';
+  ['sprint', 'run', 'endless'].forEach(mode => {
+    html += '<tr><td>' + MODE_INFO[mode].label + '</td>';
+    cols.forEach(d => {
+      const v = save.best[mode + '|' + d + '|' + mix];
+      html += '<td' + (v ? ' class="best"' : '') + '>' + (v || '—') + '</td>';
+    });
+    html += '</tr>';
+  });
+  $('best-table').innerHTML = html + '</table>';
+  $('best-mix').textContent = 'for ' + save.prefs.ops.map(o => OP_SIGN[o]).join(' ') + ' — switch operations to see other mixes.';
+}
+
+function renderHistory() {
+  const box = $('history');
+  if (!save.history.length) {
+    box.innerHTML = '<p class="tiny muted" style="margin:0">No sessions yet. Hit Start.</p>';
+    return;
+  }
+  let html = '<table><tr><th>When</th><th>Mode</th><th>Level</th><th>Score</th><th>Acc</th></tr>';
+  save.history.forEach(h => {
+    const when = new Date(h.when || Date.now()).toLocaleString(undefined, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+    html += '<tr><td>' + when + '</td><td>' + (MODE_INFO[h.mode] ? MODE_INFO[h.mode].label : h.mode) + '</td><td>' + (DIFF_LABEL[h.diff] || h.diff) + '</td><td class="best">' + h.score + '</td><td>' + h.acc + '%</td></tr>';
+  });
+  box.innerHTML = html + '</table>';
+}
+
+function renderTotals() {
+  const t = save.totals;
+  $('stat-answered').textContent = t.answered || 0;
+  $('stat-correct').textContent = t.correct || 0;
+  $('stat-acc').textContent = t.answered ? Math.round((t.correct / t.answered) * 100) + '%' : '—';
+  const n = Object.keys(save.mistakes).reduce((sum, k) => sum + (save.mistakes[k].n || 0), 0);
+  $('stat-drill').textContent = n ? n + ' question' + (n === 1 ? '' : 's') + ' waiting to be drilled.' : 'No mistakes banked. Impressive.';
+  $('btn-drill').hidden = n === 0;
+  $('btn-drill2').hidden = n === 0;
+}
+
+function renderHome() {
+  $('mode-picker').querySelectorAll('[data-mode]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.mode === save.prefs.mode)));
+  $('diff-picker').querySelectorAll('[data-diff]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.diff === save.prefs.diff)));
+  $('op-picker').querySelectorAll('[data-op]').forEach(b => b.setAttribute('aria-pressed', String(save.prefs.ops.indexOf(b.dataset.op) > -1)));
+  $('btn-sound').textContent = 'Sound: ' + (save.prefs.sound ? 'on' : 'off');
+  $('btn-sound').setAttribute('aria-pressed', String(save.prefs.sound));
+  renderTotals();
+  renderBest();
+  renderHistory();
+  $('lab-next').textContent = labNextText();
+  $('kids-next').textContent = kidsNextText();
+  setView('home');
+}
+
+function goDrill() {
+  if (!Object.keys(save.mistakes).length) { renderTotals(); return; }
+  startSession('drill', save.prefs.diff, save.prefs.ops);
+}
+
+function skillFor(id) {
+  if (!save.skills[id]) save.skills[id] = { seen: 0, correct: 0, times: [] };
+  return save.skills[id];
+}
+function medianOf(list) {
+  if (!list || !list.length) return 0;
+  const s = list.slice().sort((a, b) => a - b);
+  const m = s.length >> 1;
+  return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
+}
+function medianText(list) {
+  const m = medianOf(list);
+  return m ? (m / 1000).toFixed(1) + 's' : '—';
+}
+function skillAccuracy(s) {
+  return s && s.seen ? Math.round((s.correct / s.seen) * 100) : null;
+}
+function skillNeed(s) {
+  if (!s || !s.seen) return 0.6;
+  const med = medianOf(s.times || []);
+  const slow = med ? clamp(med / 3000, 0, 1.6) : 0;
+  return (1 - s.correct / s.seen) + slow * 0.5;
+}
+function pickWeightedLesson() {
+  const total = STRATEGIES.reduce((sum, l) => sum + skillNeed(save.skills[l.id]), 0);
+  let r = Math.random() * total;
+  for (const l of STRATEGIES) {
+    r -= skillNeed(save.skills[l.id]);
+    if (r <= 0) return l;
+  }
+  return STRATEGIES[0];
+}
+function recordSkill(id, ok, ms) {
+  const s = skillFor(id);
+  s.seen += 1;
+  if (ok) {
+    s.correct += 1;
+    s.times.push(Math.round(ms));
+    if (s.times.length > SKILL_KEEP) s.times.shift();
+  }
+  persist();
+}
+
+const play = {
+  lesson: null, teach: 'steps', q: null, steps: [], ask: [], stepIdx: 0,
+  example: false, revealed: false, done: false,
+  qnum: 0, score: 0, streak: 0, best: 0, correct: 0, answered: 0,
+  times: [], startedAt: 0
+};
+
+function labAnswerSteps() { return play.ask; }
+
+function labExpected() {
+  if (play.teach === 'steps' && play.stepIdx < play.ask.length) return play.ask[play.stepIdx].answer;
+  return play.q.answer;
+}
+
+function isFinalLabStep() {
+  if (play.teach !== 'steps') return true;
+  return play.stepIdx >= play.ask.length - 1;
+}
+
+function startLab(lessonId) {
+  play.lesson = lessonId === 'mixed' ? pickWeightedLesson() : STRATEGY_BY_ID[lessonId];
+  if (!play.lesson) return;
+  play.teach = save.prefs.teach;
+  play.qnum = 0; play.score = 0; play.streak = 0; play.best = 0;
+  play.correct = 0; play.answered = 0; play.times = []; play.done = false;
+  $('p-summary').classList.add('hidden');
+  $('p-ask').classList.remove('hidden');
+  $('p-method').classList.remove('hidden');
+  setView('play');
+  nextLabQuestion();
+}
+
+function nextLabQuestion(msg, cls) {
+  if (play.qnum >= LAB_LENGTH) { endLab(); return; }
+  play.qnum += 1;
+  play.q = play.lesson.make(save.prefs.diff);
+  play.steps = play.lesson.steps(play.q);
+  play.ask = play.steps.filter(s => s.answer !== null);
+  play.stepIdx = 0;
+  play.example = play.teach === 'example' && play.qnum === 1;
+  play.revealed = play.example;
+  play.startedAt = performance.now();
+  renderLab(msg, cls);
+}
+
+function renderLab(msg, cls) {
+  $('p-lesson').textContent = play.lesson.name;
+  $('p-qnum').textContent = play.qnum;
+  $('p-score').textContent = play.score;
+  $('p-streak').textContent = play.streak;
+  $('p-hits').textContent = play.correct + '/' + play.answered;
+  $('p-question').textContent = play.q.text;
+  $('p-why').textContent = play.lesson.why;
+
+  $('p-hint').hidden = !(play.teach === 'hint' && !play.example && !play.revealed);
+  $('p-next-example').hidden = !play.example;
+  $('p-ansrow').hidden = play.example;
+  $('p-submit').classList.toggle('hidden', play.example);
+
+  const prompt = $('p-prompt');
+  if (play.example) {
+    prompt.innerHTML = '<span class="bl">worked example</span>' + escapeHtml(play.lesson.rule);
+    $('p-step-label').textContent = 'Here is the whole method';
+  } else if (play.teach === 'steps' && play.stepIdx < play.ask.length) {
+    prompt.innerHTML = '<span class="bl">step ' + (play.stepIdx + 1) + ' of ' + play.ask.length + '</span>' + escapeHtml(play.ask[play.stepIdx].expr);
+    $('p-step-label').textContent = 'Method';
+  } else if (play.teach === 'hint' && play.revealed) {
+    prompt.innerHTML = '<span class="bl">method shown</span>' + escapeHtml(play.lesson.rule);
+    $('p-step-label').textContent = 'Method (revealed)';
+  } else {
+    prompt.innerHTML = '<span class="bl">your turn</span>answer the question';
+    $('p-step-label').textContent = play.teach === 'hint' ? 'Method (hidden until you ask)' : 'Method';
+  }
+
+  const list = $('p-steps');
+  list.innerHTML = '';
+  const reach = play.teach === 'steps' ? play.stepIdx : (play.revealed ? play.ask.length : 0);
+  play.steps.forEach((s, i) => {
+    const before = play.steps.slice(0, i).filter(x => x.answer !== null).length;
+    const li = document.createElement('li');
+    if (s.answer === null) { /* display-only step, nothing to mask */ }
+    else if (play.teach === 'steps' && before === reach) li.className = 'now';
+    else if (play.example || before < reach) { /* revealed */ }
+    else li.className = 'masked';
+    const n = document.createElement('span');
+    n.className = 'sn';
+    n.textContent = String(i + 1);
+    const x = document.createElement('span');
+    x.className = 'sx';
+    x.textContent = s.label + ' — ' + s.expr;
+    const a = document.createElement('span');
+    a.className = 'sa';
+    a.textContent = s.answer === null ? '' : (li.className === 'masked' ? '?' : fmt(s.answer));
+    li.appendChild(n);
+    li.appendChild(x);
+    li.appendChild(a);
+    list.appendChild(li);
+  });
+
+  $('p-input').value = '';
+  const fb = $('p-feedback');
+  fb.textContent = msg || ' ';
+  fb.className = msg ? 'fb ' + (cls || 'info') : 'fb';
+  if (!play.example) $('p-input').focus();
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function submitLab() {
+  if (play.done) return;
+  const raw = $('p-input').value.replace(/[^0-9-]/g, '');
+  const value = raw === '' || raw === '-' ? null : parseInt(raw, 10);
+  const fb = $('p-feedback');
+  if (value === null) {
+    fb.textContent = 'Type a number first';
+    fb.className = 'fb info';
+    return;
+  }
+  const expected = labExpected();
+  const spent = performance.now() - play.startedAt;
+  if (value === expected) {
+    if (isFinalLabStep()) {
+      const gained = Math.round(SCORE_PER_HIT * multiplier(play.streak));
+      play.score += gained;
+      play.correct += 1;
+      play.answered += 1;
+      play.times.push(spent);
+      play.streak += 1;
+      play.best = Math.max(play.best, play.streak);
+      recordSkill(play.lesson.id, true, spent);
+      sfx.good();
+      const tail = play.streak >= 5 ? '  ×' + multiplier(play.streak).toFixed(1).replace(/\.0$/, '') + ' combo' : '';
+      play.revealed = play.teach === 'hint';
+      nextLabQuestion('Correct  +' + gained + tail, 'good');
+      return;
+    }
+    play.stepIdx += 1;
+    sfx.good();
+    play.startedAt = performance.now();
+    renderLab();
+    return;
+  }
+
+  play.streak = 0;
+  sfx.bad();
+  $('p-input').classList.remove('shake');
+  void $('p-input').offsetWidth;
+  $('p-input').classList.add('shake');
+
+  if (isFinalLabStep()) {
+    play.answered += 1;
+    recordSkill(play.lesson.id, false, spent);
+    bankLabMistake(play.q);
+    play.revealed = true;
+    renderLab('No — it was ' + fmt(expected), 'bad');
+  } else {
+    play.stepIdx += 1;
+    renderLab('No — it was ' + fmt(expected) + '. Carry on.', 'bad');
+  }
+}
+
+function bankLabMistake(q) {
+  const key = mistakeKey(q);
+  const entry = save.mistakes[key] || { n: 0, q: q };
+  entry.n += 1;
+  entry.q = { op: q.op, diff: q.diff, a: q.a, b: q.b };
+  save.mistakes[key] = entry;
+  persist();
+}
+
+function endLab() {
+  if (play.done) return;
+  play.done = true;
+  const acc = play.answered ? Math.round((play.correct / play.answered) * 100) : 0;
+  if (play.answered) {
+    save.totals.answered += play.answered;
+    save.totals.correct += play.correct;
+    save.history.unshift({
+      mode: 'lab', diff: save.prefs.diff, score: play.score, acc: acc,
+      correct: play.correct, answered: play.answered, when: new Date().toISOString()
+    });
+    save.history = save.history.slice(0, HISTORY_MAX);
+    persist();
+  }
+  $('p-ask').classList.add('hidden');
+  $('p-summary').classList.remove('hidden');
+  $('p-method').classList.add('hidden');
+  $('s-right').textContent = play.correct + '/' + play.answered;
+  $('s-median').textContent = medianText(play.times);
+  $('s-streak').textContent = play.best;
+  const med = medianOf(play.times);
+  let note = TEACH_LABEL[play.teach] + ' · ' + play.lesson.name;
+  if (med && med <= 3000) note += ' — that is inside your 3-second target.';
+  else if (med) note += ' — still above 3 seconds. Run it again on the same lesson.';
+  $('s-note').textContent = note;
+  sfx.over();
+}
+
+function renderLabMenu() {
+  $('p-method').classList.remove('hidden');
+  $('teach-picker').querySelectorAll('[data-teach]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.teach === save.prefs.teach)));
+  $('teach-hint').textContent = TEACH_HINT[save.prefs.teach];
+  const list = $('lesson-list');
+  list.innerHTML = '';
+
+  const mixed = document.createElement('li');
+  const mixWrap = document.createElement('div');
+  const mixName = document.createElement('b');
+  mixName.className = 'lname';
+  mixName.textContent = 'Mixed';
+  const mixRule = document.createElement('span');
+  mixRule.className = 'lrule';
+  mixRule.textContent = 'All eight lessons, weighted towards whatever you are slowest at';
+  mixWrap.appendChild(mixName);
+  mixWrap.appendChild(mixRule);
+  const mixBtn = document.createElement('button');
+  mixBtn.type = 'button';
+  mixBtn.textContent = 'Practise';
+  mixBtn.addEventListener('click', function () { audio(); startLab('mixed'); });
+  mixed.appendChild(mixWrap);
+  mixed.appendChild(mixBtn);
+  list.appendChild(mixed);
+
+  STRATEGIES.forEach(lesson => {
+    const s = save.skills[lesson.id];
+    const acc = skillAccuracy(s);
+    const li = document.createElement('li');
+    const wrap = document.createElement('div');
+    const name = document.createElement('b');
+    name.className = 'lname';
+    name.textContent = lesson.name;
+    const rule = document.createElement('span');
+    rule.className = 'lrule';
+    rule.textContent = lesson.rule;
+    wrap.appendChild(name);
+    wrap.appendChild(rule);
+
+    const skill = document.createElement('div');
+    skill.className = 'lskill';
+    const bar = document.createElement('div');
+    bar.className = 'bar-skill';
+    const fill = document.createElement('i');
+    const pct = acc === null ? 0 : acc;
+    fill.style.width = pct + '%';
+    if (acc !== null && acc < 50) fill.className = 'low';
+    else if (acc !== null && acc < 80) fill.className = 'mid';
+    bar.appendChild(fill);
+    const cap = document.createElement('span');
+    cap.textContent = s && s.seen ? acc + '% · ' + medianText(s.times) : 'not tried';
+    skill.appendChild(bar);
+    skill.appendChild(cap);
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.textContent = s && s.seen ? 'Again' : 'Practise';
+    btn.addEventListener('click', function () { audio(); startLab(lesson.id); });
+
+    li.appendChild(wrap);
+    li.appendChild(skill);
+    li.appendChild(btn);
+    list.appendChild(li);
+  });
+
+  $('lab-next').textContent = labNextText();
+  setView('lab');
+}
+
+function labNextText() {
+  const tried = STRATEGIES.filter(l => save.skills[l.id] && save.skills[l.id].seen);
+  if (!tried.length) return 'Nothing practised yet — start with Ends in 5, the easiest big win.';
+  let worst = tried[0];
+  tried.forEach(l => { if (skillNeed(save.skills[l.id]) > skillNeed(save.skills[worst.id])) worst = l; });
+  const s = save.skills[worst.id];
+  const med = medianOf(s.times || []);
+  const tally = s.seen + ' question' + (s.seen === 1 ? '' : 's') + ', ' + (s.correct ? skillAccuracy(s) + '% right' : 'none right yet');
+  if (!s.correct) return 'Needs work: ' + worst.name + ' — ' + tally + '. Land one right and the median time will show.';
+  if (med > 3000) return 'Your slowest: ' + worst.name + ' at ' + medianText(s.times) + ' over ' + tally + '. Target is under 3 seconds.';
+  return 'Sharp: ' + worst.name + ' at ' + medianText(s.times) + ' over ' + tally + '. Try ' + leastTried(worst).name + ' next.';
+}
+
+function leastTried(exclude) {
+  let pickId = STRATEGIES[0].id;
+  let best = Infinity;
+  STRATEGIES.forEach(l => {
+    if (l.id === exclude.id) return;
+    const seen = save.skills[l.id] ? save.skills[l.id].seen : 0;
+    if (seen < best) { best = seen; pickId = l.id; }
+  });
+  return STRATEGY_BY_ID[pickId];
+}
+
+function wire() {
+  $('mode-picker').addEventListener('click', e => {
+    const b = e.target.closest('[data-mode]');
+    if (!b) return;
+    save.prefs.mode = b.dataset.mode;
+    persist();
+    renderBest();
+    renderHome();
+  });
+  $('diff-picker').addEventListener('click', e => {
+    const b = e.target.closest('[data-diff]');
+    if (!b) return;
+    save.prefs.diff = b.dataset.diff;
+    persist();
+    renderBest();
+    renderHome();
+  });
+  $('op-picker').addEventListener('click', e => {
+    const b = e.target.closest('[data-op]');
+    if (!b) return;
+    const op = b.dataset.op;
+    const i = save.prefs.ops.indexOf(op);
+    if (i > -1) {
+      if (save.prefs.ops.length === 1) { flashOpHint(); return; }
+      save.prefs.ops.splice(i, 1);
+    } else {
+      save.prefs.ops.push(op);
+      save.prefs.ops.sort((a, c) => OP_ORDER.indexOf(a) - OP_ORDER.indexOf(c));
+    }
+    persist();
+    renderBest();
+    renderHome();
+  });
+  $('btn-start').addEventListener('click', () => { audio(); startSession(save.prefs.mode, save.prefs.diff, save.prefs.ops); });
+  $('btn-drill').addEventListener('click', () => { audio(); goDrill(); });
+  $('btn-drill2').addEventListener('click', () => { audio(); goDrill(); });
+  $('btn-again').addEventListener('click', () => {
+    if (game.mode === 'drill' && !Object.keys(save.mistakes).length) { renderHome(); return; }
+    startSession(game.mode, game.diff, game.ops);
+  });
+  $('btn-settings').addEventListener('click', renderHome);
+  $('btn-sound').addEventListener('click', () => { save.prefs.sound = !save.prefs.sound; persist(); renderHome(); if (save.prefs.sound) tone(880, 60); });
+  $('btn-reset').addEventListener('click', () => {
+    if (!confirm('Delete all personal bests, history and banked mistakes?')) return;
+    const prefs = save.prefs;
+    save = blankSave();
+    save.prefs = prefs;
+    persist();
+    renderHome();
+  });
+  $('btn-resume').addEventListener('click', resume);
+  $('btn-quit').addEventListener('click', () => { $('pause-veil').classList.add('hidden'); finish('quit'); });
+  $('btn-lab').addEventListener('click', () => { audio(); renderLabMenu(); });
+  $('btn-lab-back').addEventListener('click', renderHome);
+  $('teach-picker').addEventListener('click', e => {
+    const b = e.target.closest('[data-teach]');
+    if (!b) return;
+    save.prefs.teach = b.dataset.teach;
+    persist();
+    renderLabMenu();
+  });
+  $('btn-play-quit').addEventListener('click', () => { if (play.answered) endLab(); else renderLabMenu(); });
+  $('btn-lab-home').addEventListener('click', renderLabMenu);
+  $('btn-lab-again').addEventListener('click', () => startLab(play.lesson.id));
+  $('p-submit').addEventListener('click', submitLab);
+  $('btn-kids').addEventListener('click', () => { audio(); renderKidsMenu(); });
+  $('btn-kids-back').addEventListener('click', renderHome);
+  $('btn-kids-again').addEventListener('click', () => startKids(kids.track, kids.rung));
+  $('btn-kids-ladder').addEventListener('click', renderKidsMenu);
+  $('btn-kids-quit').addEventListener('click', () => { if (kids.right) endKids(); else renderKidsMenu(); });
+  $('track-picker').addEventListener('click', e => {
+    const b = e.target.closest('[data-track]');
+    if (!b) return;
+    kids.track = b.dataset.track;
+    renderKidsMenu();
+  });
+  $('k-submit').addEventListener('click', submitKids);
+  $('k-hint').addEventListener('click', () => {
+    if (kids.done || kids.peeked) return;
+    kids.peeked = true;
+    kids.peeks += 1;
+    updateKidsHud();
+    renderKidsHelp(true);
+    const fb = $('k-feedback');
+    fb.textContent = 'Here is how. Now try it yourself.';
+    fb.className = 'fb info';
+  });
+  $('k-input').addEventListener('input', () => {
+    const el = $('k-input');
+    const cleaned = el.value.replace(/[^0-9-]/g, '').slice(0, 6);
+    if (cleaned !== el.value) el.value = cleaned;
+  });
+  $('k-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); submitKids(); }
+  });
+  $('p-hint').addEventListener('click', () => { play.revealed = true; renderLab('Method revealed — now answer it.', 'info'); });
+  $('p-next-example').addEventListener('click', () => nextLabQuestion());
+  $('p-input').addEventListener('input', () => {
+    const el = $('p-input');
+    const cleaned = el.value.replace(/[^0-9-]/g, '').slice(0, 10);
+    if (cleaned !== el.value) el.value = cleaned;
+  });
+  $('p-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); submitLab(); }
+  });
+  $('g-submit').addEventListener('click', submit);
+  $('g-input').addEventListener('input', () => {
+    const el = $('g-input');
+    const cleaned = el.value.replace(/[^0-9-]/g, '').replace(/-/g, m => (el.value.indexOf('-') === 0 && m === '-' ? '-' : '')).slice(0, 8);
+    if (cleaned !== el.value) el.value = cleaned;
+  });
+  $('g-input').addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); submit(); }
+  });
+  document.addEventListener('keydown', e => {
+    if (!$('view-kp').classList.contains('hidden')) {
+      if (e.key === 'Enter' && document.activeElement !== $('k-input')) { e.preventDefault(); submitKids(); }
+      return;
+    }
+    if (!$('view-play').classList.contains('hidden')) {
+      if (e.key === 'Escape') { e.preventDefault(); if (play.answered) endLab(); else renderLabMenu(); return; }
+      if (e.key === 'Enter' && document.activeElement !== $('p-input') && !play.example) { e.preventDefault(); submitLab(); }
+      return;
+    }
+    if ($('view-game').classList.contains('hidden')) {
+      if (e.key === 'Enter' && document.body && document.activeElement === document.body) {
+        e.preventDefault();
+        audio();
+        startSession(save.prefs.mode, save.prefs.diff, save.prefs.ops);
+      }
+      return;
+    }
+    if (e.key === 'Escape') { e.preventDefault(); game.paused ? resume() : pause(); return; }
+    if (e.key === 'Enter' && document.activeElement !== $('g-input')) { e.preventDefault(); submit(); }
+  });
+  document.addEventListener('visibilitychange', () => { if (document.hidden && !$('view-game').classList.contains('hidden')) pause(); });
+}
+
+function flashOpHint() {
+  const hint = $('op-hint');
+  hint.textContent = 'Keep at least one operation switched on.';
+  hint.style.color = 'var(--warn)';
+  setTimeout(() => { hint.textContent = 'Pick at least one. Several picked = mixed questions.'; hint.style.color = ''; }, 1400);
+}
+
+renderHome();
+wire();
+</script>
+</body>
+</html>
