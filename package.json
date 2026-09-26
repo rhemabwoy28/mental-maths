@@ -4,7 +4,7 @@
   "private": true,
   "description": "Offline mental maths practice: timed drills, a strategy lab, and a graded fact ladder for younger children.",
   "scripts": {
-    "test": "node tests/core.test.js index.html && node tests/strategies.test.js index.html && node tests/ladder.test.js index.html && node tests/abacus.test.js index.html && node tests/records.test.js index.html && node tests/structure.test.js index.html"
+    "test": "node tests/core.test.js index.html && node tests/strategies.test.js index.html && node tests/ladder.test.js index.html && node tests/abacus.test.js index.html && node tests/records.test.js index.html && node tests/structure.test.js index.html && node tests/pwa.test.js index.html"
   },
   "license": "MIT"
 }

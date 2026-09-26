@@ -7,6 +7,11 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Mental Maths">
+<meta name="theme-color" content="#0a0e1a">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <title>Mental Maths</title>
 <style>
 :root{
@@ -287,6 +292,14 @@ kbd{background:#0d1424;border:1px solid var(--line);border-bottom-width:2px;bord
   <section id="view-home" class="view">
     <h1>Mental Maths</h1>
     <p class="sub">Works offline. Everything stays on this device.</p>
+
+    <div class="card" id="install-card" hidden>
+      <h2>Add it to the home screen</h2>
+      <p class="note" id="install-note">Give it its own icon and it opens full screen, with no browser bars.</p>
+      <div class="hub-go" style="margin-top:12px">
+        <button class="btn-main" id="btn-install" type="button">Install the app</button>
+      </div>
+    </div>
 
     <div class="hub hub-kid">
       <h2>First Facts</h2>
@@ -2624,6 +2637,62 @@ function readHash() {
   const h = String(location.hash || '').replace(/^#/, '');
   return VIEW_IDS.indexOf(h) > -1 ? h : 'home';
 }
+const SW_URL = 'sw.js';
+let swReg = null;
+let installPrompt = null;
+function standalone() {
+  if (typeof navigator !== 'undefined' && navigator.standalone === true) return true;
+  return !!(window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+}
+function fileMode() { return typeof location !== 'undefined' && location.protocol === 'file:'; }
+function renderInstall() {
+  const card = $('install-card');
+  if (!card) return;
+  if (standalone()) { card.hidden = true; return; }
+  card.hidden = false;
+  const btn = $('btn-install');
+  if (installPrompt) {
+    btn.hidden = false;
+    btn.textContent = 'Install the app';
+    btn.disabled = false;
+    $('install-note').textContent = 'Give it its own icon and it opens full screen, with no browser bars.';
+  } else if (fileMode()) {
+    btn.hidden = true;
+    $('install-note').textContent = 'Open this on the real web address first, then install it from there.';
+  } else {
+    btn.hidden = true;
+    $('install-note').textContent = 'Tap the browser menu, then "Add to Home screen" or "Install app".';
+  }
+}
+function registerSW() {
+  if (typeof navigator === 'undefined' || !('serviceWorker' in navigator)) return;
+  if (fileMode()) return;
+  if (swReg) return;
+  navigator.serviceWorker.register(SW_URL).then(reg => {
+    swReg = reg;
+    reg.addEventListener('updatefound', () => {
+      const nw = reg.installing;
+      if (!nw) return;
+      nw.addEventListener('statechange', () => {
+        if (nw.state === 'installed' && navigator.serviceWorker.controller) {
+          $('install-note').textContent = 'A new version is ready. Close and reopen the app to get it.';
+        }
+      });
+    });
+  }).catch(() => {});
+}
+if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    installPrompt = e;
+    renderInstall();
+  });
+  window.addEventListener('appinstalled', () => {
+    installPrompt = null;
+    const card = $('install-card');
+    if (card) card.hidden = true;
+  });
+}
 function initNav() {
   if (!canNav()) return;
   const start = readHash();
@@ -3337,6 +3406,11 @@ function wire() {
     renderHome();
   });
   $('btn-resume').addEventListener('click', resume);
+  $('btn-install').addEventListener('click', () => {
+    if (!installPrompt) return;
+    installPrompt.prompt();
+    installPrompt.userChoice.then(() => { installPrompt = null; renderInstall(); });
+  });
   $('btn-quit').addEventListener('click', () => { $('pause-veil').classList.add('hidden'); finish('quit'); });
   $('btn-lab').addEventListener('click', () => { audio(); renderLabMenu(); });
   $('btn-lab-back').addEventListener('click', renderHome);
@@ -3529,7 +3603,14 @@ function flashOpHint() {
 renderHome();
 wire();
 initNav();
-if (currentView !== 'home') setView(currentView, { push: false });
+registerSW();
+renderInstall();
+if (typeof location !== 'undefined' && location.search) {
+  const go = new URLSearchParams(location.search).get('go');
+  if (go === 'abacus') { abNotes(); abClear(); setView('abacus', { push: false }); }
+  else if (go === 'practise') { save.prefs.mode = 'endless'; persist(); renderHome(); }
+  else if (currentView !== 'home') setView(currentView, { push: false });
+} else if (currentView !== 'home') setView(currentView, { push: false });
 </script>
 </body>
 </html>
