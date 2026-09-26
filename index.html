@@ -4,6 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="dark">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Mental Maths">
 <title>Mental Maths</title>
 <style>
 :root{
@@ -212,6 +215,46 @@ input[type=text]{
 @media (max-width:420px){.abup,.ablow{width:26px;height:26px}.abcol{min-width:44px}.tvgrid{grid-template-columns:repeat(auto-fill,minmax(94px,1fr))}}
 @media (max-width:420px){.kid .qtext{font-size:2.8rem}}
 
+#btn-back{position:fixed;top:10px;right:12px;z-index:20;background:#1b2437;border-color:#33456a;padding:8px 14px;border-radius:999px;font-size:.85rem}
+.topbar{padding-right:86px}
+.ws-select{width:100%;margin-top:6px;background:#0d1424;color:var(--txt);border:1px solid var(--line);border-radius:11px;padding:12px;font:inherit}
+.code{width:100%;margin-top:10px;background:#0d1424;color:var(--txt);border:1px solid var(--line);border-radius:11px;padding:11px;font:12px/1.5 ui-monospace,Menlo,Consolas,monospace;resize:vertical;word-break:break-all}
+.paper{background:#f7f7f4;color:#141414;border-radius:12px;padding:22px 20px;margin-bottom:20px}
+.paper h3{margin:0 0 2px;font-size:1.15rem}
+.paper .sub2{font-size:.8rem;color:#555;margin:0 0 14px}
+.paper .namebar{display:flex;gap:16px;flex-wrap:wrap;font-size:.85rem;color:#333;margin-bottom:16px;border-bottom:1px solid #bbb;padding-bottom:8px}
+.paper .namebar span{flex:1 1 auto;border-bottom:1px dotted #888;min-width:120px}
+.paper ol{margin:0;padding-left:0;list-style:none;counter-reset:q}
+.paper ol li{counter-increment:q;display:flex;gap:9px;align-items:baseline;padding:5px 0;border-bottom:1px dotted #ddd;break-inside:avoid}
+.paper ol li::before{content:counter(q) ".";color:#666;min-width:1.6em;font-size:.85rem}
+.paper .qtext{font-size:1rem}
+.paper .ans{display:inline-block;min-width:52px;border-bottom:1px solid #888}
+.paper .key{margin-top:20px;padding-top:12px;border-top:2px solid #333}
+.paper .key h4{margin:0 0 8px;font-size:.9rem}
+.paper .key ol{columns:2;column-gap:18px}
+.paper .key ol li{padding:2px 0;border:0}
+.paper .family{border:1px solid #bbb;border-radius:8px;padding:14px;margin-bottom:14px;break-inside:avoid}
+.paper .family b{font-size:1.1rem}
+.paper .area{display:grid;grid-template-columns:repeat(2,1fr);gap:2px;width:190px;margin:10px 0}
+.paper .area div{border:1px solid #666;height:42px;display:grid;place-items:center;font-size:.8rem;color:#777}
+.paper .numline{margin:26px 0 10px;height:2px;background:#333;position:relative}
+.paper .numline i{position:absolute;top:-6px;width:2px;height:14px;background:#333}
+.paper .numline u{position:absolute;top:9px;transform:translateX(-50%);font-size:.68rem;text-decoration:none;color:#444}
+.paper .upsub td{padding:4px 8px;font-size:.9rem}
+.paper table{width:100%;border-collapse:collapse}
+.paper .ccc-answer{border:1px solid #999;background:#e9e9e6}
+.paper .ccc-fold{position:relative}
+.paper .ccc-fold::after{content:"fold";position:absolute;right:6px;top:4px;font-size:.6rem;color:#888}
+@media print{
+  body{background:#fff}
+  #app>section:not(#view-sheets),#btn-back,.topbar,#pause-veil{display:none !important}
+  #view-sheets{padding:0}
+  .card,#ws-note,#view-sheets h1,#view-sheets .sub{display:none !important}
+  .paper{background:#fff;padding:0;border-radius:0;margin:0}
+  .paper .key{page-break-before:always}
+  @page{margin:14mm}
+}
+
 .prompt .bl{color:var(--mut);font-size:.74rem;font-family:system-ui,sans-serif;display:block;letter-spacing:.1em;text-transform:uppercase}
 .explain{border-left:3px solid var(--acc);padding-left:12px;margin:14px 0}
 kbd{background:#0d1424;border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:1px 6px;font:inherit;font-size:.78rem;color:var(--txt)}
@@ -220,6 +263,8 @@ kbd{background:#0d1424;border:1px solid var(--line);border-bottom-width:2px;bord
 </head>
 <body>
 <main id="app">
+
+  <button class="hidden" id="btn-back" type="button" aria-label="Go back">‹ Back</button>
 
   <section id="view-home" class="view">
     <h1>Mental Maths</h1>
@@ -297,6 +342,19 @@ kbd{background:#0d1424;border:1px solid var(--line);border-bottom-width:2px;bord
     </div>
 
     <div class="divider">Your record</div>
+
+    <div class="grid2" style="margin-bottom:16px">
+      <div class="hub" style="margin:0">
+        <h2>Records</h2>
+        <p class="hub-lead">Move progress between the phone and the tablet, and see what is due for review.</p>
+        <div class="hub-go"><button class="btn-main" id="btn-records" type="button">Open records</button></div>
+      </div>
+      <div class="hub" style="margin:0">
+        <h2>Worksheets</h2>
+        <p class="hub-lead">Printable paper practice, built from her own record. Mostly what she knows, a little that is new.</p>
+        <div class="hub-go"><button class="btn-main" id="btn-sheets" type="button">Open worksheets</button></div>
+      </div>
+    </div>
 
     <div class="card">
       <h2>Personal bests</h2>
@@ -636,6 +694,89 @@ kbd{background:#0d1424;border:1px solid var(--line);border-bottom-width:2px;bord
     </div>
   </section>
 
+  <section id="view-sheets" class="view hidden">
+    <div class="topbar">
+      <span class="spacer"></span>
+    </div>
+    <h1 style="font-size:1.5rem">Worksheets</h1>
+    <p class="sub">Paper practice. Each sheet follows the shape the research supports: mostly what she knows, a little that is new, and a separate answer key.</p>
+
+    <div class="card">
+      <h2>Choose a sheet</h2>
+      <div class="row" id="ws-picker">
+        <button class="pick" data-ws="review" type="button" aria-pressed="false"><b>Review mix</b><span>mostly known, a few new</span></button>
+        <button class="pick" data-ws="grid" type="button" aria-pressed="false"><b>Fluency grid</b><span>24 quick facts</span></button>
+        <button class="pick" data-ws="ccc" type="button" aria-pressed="false"><b>Cover &amp; copy</b><span>for stuck facts</span></button>
+        <button class="pick" data-ws="family" type="button" aria-pressed="false"><b>Fact family</b><span>four facts from one</span></button>
+        <button class="pick" data-ws="area" type="button" aria-pressed="false"><b>Area model</b><span>2-digit &times; 1-digit</span></button>
+        <button class="pick" data-ws="upsub" type="button" aria-pressed="false"><b>Counting up</b><span>subtract with a number line</span></button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Options</h2>
+      <div class="grid2">
+        <div>
+          <label for="ws-table">Table</label>
+          <select id="ws-table" class="ws-select"></select>
+        </div>
+        <div>
+          <label for="ws-count">Questions</label>
+          <select id="ws-count" class="ws-select">
+            <option value="12">12</option>
+            <option value="20">20</option>
+            <option value="24" selected>24</option>
+            <option value="36">36</option>
+          </select>
+        </div>
+      </div>
+      <p class="tiny muted" id="ws-note" style="margin:12px 0 0"></p>
+      <div class="row" style="margin-top:14px">
+        <button class="btn-main" id="btn-sheets-print" type="button" style="flex:1">Print this sheet</button>
+      </div>
+    </div>
+
+    <div id="ws-paper" class="paper"></div>
+  </section>
+
+  <section id="view-records" class="view hidden">
+    <div class="topbar">
+      <span class="spacer"></span>
+    </div>
+    <h1 style="font-size:1.5rem">Records</h1>
+    <p class="sub">Progress is stored in this browser only, so it does not follow her from the phone to the tablet. A backup is a block of text you can copy across.</p>
+
+    <div class="card">
+      <h2>Due for review today</h2>
+      <p class="note" id="rec-due">Nothing to review yet.</p>
+      <p class="tiny muted" style="margin:12px 0 0">Review scheduling is what makes progress stick. A fact is shown again after a gap, and the gap grows each time she gets it right without a hint. Get one wrong and it comes back tomorrow.</p>
+    </div>
+
+    <div class="card">
+      <h2>Save a backup</h2>
+      <p class="tiny muted" style="margin:0 0 10px">On the phone, tap Copy, then paste the code into a message to yourself. On the tablet, paste it below and press Restore.</p>
+      <div class="row" style="margin-bottom:10px">
+        <button class="btn-main" id="btn-export" type="button" style="flex:1">Show my backup</button>
+        <button id="btn-copy" type="button" hidden>Copy</button>
+        <button id="btn-download" type="button" hidden>Save file</button>
+      </div>
+      <textarea id="export-text" class="code" rows="6" readonly aria-label="Backup code" placeholder="your backup appears here"></textarea>
+      <p class="tiny muted" id="export-note" style="margin:10px 0 0"></p>
+    </div>
+
+    <div class="card">
+      <h2>Restore</h2>
+      <p class="tiny muted" style="margin:0 0 10px">Paste a backup code, or open a saved file. Restoring merges with what is already here, keeping whichever progress is further along.</p>
+      <textarea id="import-text" class="code" rows="5" placeholder="paste the backup code here" aria-label="Backup code to restore"></textarea>
+      <div class="row" style="margin-top:10px">
+        <button class="btn-main" id="btn-import" type="button" style="flex:1">Restore</button>
+        <button id="btn-file" type="button">Open file</button>
+        <input type="file" id="file-input" accept=".txt,.json,text/plain,application/json" class="hidden">
+      </div>
+      <p class="tiny muted" id="import-note" style="margin:10px 0 0"></p>
+    </div>
+  </section>
+
   <div id="pause-veil" class="overlay hidden">
     <div class="card">
       <h2 style="text-transform:none;letter-spacing:0">Paused</h2>
@@ -675,6 +816,348 @@ const HISTORY_MAX = 8;
 const MISSED_SHOWN = 6;
 const LAB_LENGTH = 8;
 const SKILL_KEEP = 20;
+
+/* ---------- Spaced review ---------- */
+
+const DAY = 86400000;
+const INTERVALS = [0, 1, 2, 4, 7, 15, 30];
+function factGapDays(iv) { return INTERVALS[clamp((Number(iv) || 0) - 1, 0, INTERVALS.length - 1)]; }
+function factWhen(k) {
+  const s = save.facts ? save.facts[k] : null;
+  return s && typeof s === 'object' ? { iv: Number(s.iv) || 0, last: Number(s.last) || 0 } : { iv: 0, last: 0 };
+}
+function scheduleFact(k, ok) {
+  const s = factStat(k);
+  const iv = Number(s.iv) || 0;
+  s.iv = ok ? Math.min(iv + 1, INTERVALS.length) : 0;
+  s.last = Date.now();
+}
+function dueGap(k) {
+  const w = factWhen(k);
+  if (!w.last) return 0;
+  return Math.max(0, factGapDays(w.iv) * DAY - (Date.now() - w.last));
+}
+function isDue(k) {
+  const w = factWhen(k);
+  if (!w.last) return false;
+  return Date.now() - w.last >= factGapDays(w.iv) * DAY;
+}
+function dueFacts(track) {
+  const out = [];
+  allFacts(track).forEach(f => { if (isDue(f.key)) out.push([f.a, f.b]); });
+  return out;
+}
+function dueCount(track) {
+  let n = 0;
+  ['mul', 'add', 'sub'].forEach(t => { n += dueFacts(t).length; });
+  return n;
+}
+function dueText() {
+  const parts = ['mul', 'add', 'sub'].map(t => {
+    const n = dueFacts(t).length;
+    return n ? n + ' ' + ({ mul: 'multiplication', add: 'addition', sub: 'subtraction' })[t] : null;
+  }).filter(Boolean);
+  if (!parts.length) return 'Nothing is due right now. Keep practising and facts will start coming back on their own.';
+  return 'Due for review: ' + parts.join(', ') + '. Spacing out the facts is what makes them stick — the gap grows each time she gets one right without a hint.';
+}
+
+/* ---------- Records: backup and restore ---------- */
+
+const BACKUP_APP = 'mentalmaths';
+const BACKUP_V = 1;
+function exportPayload() {
+  return JSON.stringify({ app: BACKUP_APP, v: BACKUP_V, at: new Date().toISOString(), data: save });
+}
+function importPayload(text) {
+  let o;
+  try { o = JSON.parse(text); } catch (e) { throw new Error('That is not readable as a backup. Copy the whole block, including the braces.'); }
+  if (!o || typeof o !== 'object') throw new Error('That is not a Mental Maths backup.');
+  if (o.app !== BACKUP_APP) throw new Error('That backup came from a different app.');
+  if (typeof o.v !== 'number') throw new Error('That backup looks damaged.');
+  if (o.v > BACKUP_V) throw new Error('That backup is from a newer version of the app.');
+  const d = o.data && typeof o.data === 'object' ? o.data : {};
+  return {
+    best: mergeBest(save.best, d.best),
+    totals: {
+      answered: Math.max((save.totals && save.totals.answered) || 0, (d.totals && d.totals.answered) || 0),
+      correct: Math.max((save.totals && save.totals.correct) || 0, (d.totals && d.totals.correct) || 0)
+    },
+    history: mergeHistory(save.history, d.history),
+    mistakes: mergeMistakes(save.mistakes, d.mistakes),
+    skills: mergeSkills(save.skills, d.skills),
+    facts: mergeFacts(save.facts, d.facts),
+    prefs: Object.assign({}, blankSave().prefs, save.prefs, d.prefs && typeof d.prefs === 'object' ? d.prefs : {})
+  };
+}
+function mergeBest(a, b) {
+  const out = Object.assign({}, a || {});
+  Object.keys(b || {}).forEach(k => { if (Number(b[k]) > (Number(out[k]) || 0)) out[k] = Number(b[k]); });
+  return out;
+}
+function mergeHistory(a, b) {
+  const seen = new Map();
+  (Array.isArray(a) ? a : []).concat(Array.isArray(b) ? b : []).forEach(h => {
+    if (!h || typeof h !== 'object') return;
+    const k = String(h.when || '') + '|' + String(h.mode) + '|' + String(h.score);
+    seen.set(k, h);
+  });
+  return [...seen.values()].sort((x, y) => String(y.when || '').localeCompare(String(x.when || ''))).slice(0, HISTORY_MAX);
+}
+function mergeMistakes(a, b) {
+  const out = Object.assign({}, a || {});
+  Object.keys(b || {}).forEach(k => {
+    const nb = b[k];
+    if (!nb || typeof nb !== 'object') return;
+    if (!out[k] || typeof out[k] !== 'object') { out[k] = { n: Number(nb.n) || 1, q: nb.q || null }; return; }
+    out[k] = { n: Math.max(Number(out[k].n) || 0, Number(nb.n) || 0), q: out[k].q || nb.q };
+  });
+  return out;
+}
+function mergeSkills(a, b) {
+  const out = Object.assign({}, a || {});
+  Object.keys(b || {}).forEach(k => {
+    const nb = b[k];
+    if (!nb || typeof nb !== 'object') return;
+    const cur = out[k] && typeof out[k] === 'object' ? out[k] : { seen: 0, correct: 0, times: [] };
+    out[k] = {
+      seen: Math.max(Number(cur.seen) || 0, Number(nb.seen) || 0),
+      correct: Math.max(Number(cur.correct) || 0, Number(nb.correct) || 0),
+      times: medianOf(nb.times) > medianOf(cur.times) ? nb.times : cur.times
+    };
+  });
+  return out;
+}
+function mergeFacts(a, b) {
+  const out = Object.assign({}, a || {});
+  Object.keys(b || {}).forEach(k => {
+    const nb = b[k];
+    if (!nb || typeof nb !== 'object') return;
+    const cur = out[k] && typeof out[k] === 'object' ? out[k] : { seen: 0, right: 0, times: [], iv: 0, last: 0 };
+    const curState = factStateOf(cur), nbState = factStateOf(nb);
+    const curIv = Number(cur.iv) || 0, nbIv = Number(nb.iv) || 0;
+    const better = rankState(nbState) > rankState(curState) || (nbState === curState && nbIv > curIv);
+    out[k] = cleanFact(better ? nb : cur);
+  });
+  return out;
+}
+function factStateOf(s) {
+  const seen = Number(s && s.seen) || 0;
+  const right = Number(s && s.right) || 0;
+  if (!seen) return 'new';
+  if (right < 3) return right > 0 ? 'learning' : 'new';
+  const med = medianOf(s && s.times);
+  return (!med || med <= 3000) ? 'known' : 'learning';
+}
+function rankState(s) { return s === 'known' ? 2 : s === 'learning' ? 1 : 0; }
+function cleanFact(s) {
+  const c = cleanStat(s);
+  c.iv = clamp(Math.round(Number(s && s.iv) || 0), 0, INTERVALS.length);
+  c.last = Math.max(0, Number(s && s.last) || 0);
+  return c;
+}
+function applyImported(next) {
+  const factsIn = next.facts && typeof next.facts === 'object' ? next.facts : {};
+  const skillsIn = next.skills && typeof next.skills === 'object' ? next.skills : {};
+  const totalsIn = next.totals && typeof next.totals === 'object' ? next.totals : {};
+  save = next;
+  save.facts = {};
+  Object.keys(factsIn).forEach(k => { save.facts[k] = cleanFact(factsIn[k]); });
+  save.skills = {};
+  Object.keys(skillsIn).forEach(k => { save.skills[k] = cleanStat(skillsIn[k]); });
+  save.totals = { answered: Number(totalsIn.answered) || 0, correct: Number(totalsIn.correct) || 0 };
+  save.prefs.ops = save.prefs.ops.filter(o => OP_ORDER.indexOf(o) > -1);
+  if (!save.prefs.ops.length) save.prefs.ops = blankSave().prefs.ops;
+  if (['example', 'steps', 'hint'].indexOf(save.prefs.teach) < 0) save.prefs.teach = 'steps';
+  invalidateFacts();
+  persist();
+}
+function copyText(text) {
+  if (typeof navigator !== 'undefined' && navigator.clipboard && navigator.clipboard.writeText) {
+    return navigator.clipboard.writeText(text).then(() => true, () => legacyCopy(text));
+  }
+  return Promise.resolve(legacyCopy(text));
+}
+function legacyCopy(text) {
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.cssText = 'position:fixed;top:0;opacity:0';
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    const done = document.execCommand('copy');
+    ta.remove();
+    return done;
+  } catch (err) { return false; }
+}
+function downloadText(text, name) {
+  try {
+    const url = URL.createObjectURL(new Blob([text], { type: 'application/octet-stream' }));
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => { try { URL.revokeObjectURL(url); } catch (e) { /* ignore */ } }, 10000);
+    return true;
+  } catch (err) { return false; }
+}
+
+/* ---------- Worksheets ---------- */
+
+const WS = { kind: 'review', table: 7, count: 24 };
+function wsPickerFill() {
+  const sel = $('ws-table');
+  sel.innerHTML = '';
+  for (let n = 1; n <= 12; n++) {
+    const o = document.createElement('option');
+    o.value = n;
+    o.textContent = n + ' times';
+    if (n === WS.table) o.selected = true;
+    sel.appendChild(o);
+  }
+}
+function knownMulPairs() {
+  const out = [];
+  allFacts('mul').forEach(f => { if (factState(f.key) === 'known') out.push([f.a, f.b]); });
+  return out;
+}
+function wsBuild() {
+  const n = WS.table;
+  const count = Number(WS.count);
+  if (WS.kind === 'ccc') return wsCcc(n, 8);
+  if (WS.kind === 'family') return wsFamily(n, 3);
+  if (WS.kind === 'area') return wsArea(n, 6);
+  if (WS.kind === 'upsub') return wsUpSub(8);
+  return wsGrid(n, count);
+}
+function wsHeader(title, sub) {
+  return '<h3>' + title + '</h3><p class="sub2">' + sub + '</p>'
+    + '<div class="namebar"><span>Name</span><span>Date</span></div>';
+}
+function wsList(items) {
+  return '<ol>' + items.map(t => '<li><span class="qtext">' + t + '</span> <span class="ans"></span></li>').join('') + '</ol>';
+}
+function wsKey(items) {
+  return '<div class="key"><h4>Answer key</h4><ol>' + items.map(t => '<li><span class="qtext">' + t + '</span></li>').join('') + '</ol></div>';
+}
+const WS_TABLES_MAX = 12;
+function wsAll(n) {
+  const out = [];
+  for (let k = 1; k <= WS_TABLES_MAX; k++) out.push([n, k]);
+  return out;
+}
+function wsGrid(n, count) {
+  const all = shuffle(wsAll(n));
+  const items = all.slice(0, Math.min(count, all.length)).map(p => p[0] + ' × ' + p[1]);
+  const keys = all.slice(0, Math.min(count, all.length)).map(p => p[0] + ' × ' + p[1] + ' = ' + p[0] * p[1]);
+  return { title: 'Times table: ' + n, sub: 'Write the answers. Try to do them in your head.', body: wsList(items), key: wsKey(keys) };
+}
+function wsReview(n, count) {
+  const all = wsAll(n);
+  const freshOnes = all.filter(p => factState(factKey('mul', p[0], p[1])) !== 'known');
+  const fresh = shuffle(freshOnes).slice(0, Math.max(2, Math.round(count * 0.2)));
+  const rest = shuffle(all.filter(p => fresh.indexOf(p) < 0));
+  const picked = rest.slice(0, Math.max(0, Math.min(count - fresh.length, rest.length)));
+  const order = shuffle(fresh.concat(picked));
+  const items = order.map(p => p[0] + ' × ' + p[1]);
+  const keys = order.map(p => p[0] + ' × ' + p[1] + ' = ' + p[0] * p[1]);
+  return {
+    title: 'Review sheet: mostly what you know',
+    sub: fresh.length + ' new and ' + picked.length + ' you already know. The new ones come back tomorrow.',
+    body: wsList(items),
+    key: wsKey(keys)
+  };
+}
+function wsCcc(n, count) {
+  const all = wsAll(n).filter(p => p[1] >= 2);
+  const stuck = all.filter(p => factState(factKey('mul', p[0], p[1])) !== 'known');
+  const easy = all.filter(p => factState(factKey('mul', p[0], p[1])) === 'known');
+  const wantStuck = Math.max(1, Math.round(count * 0.5));
+  const set = shuffle(stuck).slice(0, wantStuck).concat(shuffle(easy).slice(0, Math.max(0, count - wantStuck)));
+  const chosen = shuffle(set).slice(0, Math.min(count, all.length));
+  const rows = chosen.map(p => '<tr><td class="ccc-answer">' + p[0] + ' × ' + p[1] + ' = ' + p[0] * p[1] + '</td><td></td><td></td></tr>').join('');
+  return {
+    title: 'Cover, copy, compare: ' + n + ' times',
+    sub: 'Cover the grey column with your hand. Write the answer, check it, and copy anything you got wrong.',
+    body: '<table class="ccc-fold">' + rows + '</table>',
+    key: '<div class="key"><h4>How to use this</h4><p class="sub2">About nine of every ten should be things you already know. Do one row at a time. A fact is fixed when you get it right three times in a row without looking.</p></div>'
+  };
+}
+function wsFamily(n, count) {
+  const bodies = [];
+  const ks = shuffle(wsAll(n).map(p => p[1])).slice(0, count);
+  ks.forEach(k => {
+    const p = n * k;
+    bodies.push('<div class="family"><b>' + n + ' × ' + k + '</b>'
+      + '<table class="upsub" style="margin-top:8px">'
+      + '<tr><td>' + n + ' × ' + k + ' =</td><td>' + k + ' × ' + n + ' =</td></tr>'
+      + '<tr><td>' + p + ' ÷ ' + k + ' =</td><td>' + p + ' ÷ ' + n + ' =</td></tr>'
+      + '</table></div>');
+  });
+  return {
+    title: 'Fact family: ' + n + ' times',
+    sub: 'Same four facts, four ways. Filling this in teaches the family to sit together.',
+    body: bodies.join(''),
+    key: '<div class="key"><h4>Answers</h4><p class="sub2">' + ks.map(k => n + '×' + k + ' = ' + n * k + ', ÷' + k + ' = ' + n + ' (and ÷' + n + ' = ' + k + ')').join('. ') + '.</p></div>'
+  };
+}
+function wsArea(n, count) {
+  const bodies = [];
+  const keys = [];
+  for (let i = 0; i < count; i++) {
+    const ones = ri([1, 9]);
+    const tens = ri([1, 9]);
+    const big = tens * 10;
+    bodies.push('<div class="family"><b>' + (big + ones) + ' × ' + n + '</b>'
+      + '<p class="sub2" style="margin:4px 0 0">Split ' + (big + ones) + ' into ' + big + ' and ' + ones + '. Fill all four boxes, then add the bottom two.</p>'
+      + '<div class="area"><div>' + big + ' × ' + n + '</div><div>' + ones + ' × ' + n + '</div><div></div><div></div></div></div>');
+    keys.push((big + ones) + ' × ' + n + ' = ' + (big * n) + ' + ' + (ones * n) + ' = ' + (big + ones) * n);
+  }
+  return {
+    title: 'Area model: 2-digit × 1-digit',
+    sub: 'The four boxes are the two partial products and their sum. All four are blank on purpose.',
+    body: bodies.join(''),
+    key: '<div class="key"><h4>Answers</h4><ol>' + keys.map(k => '<li><span class="qtext">' + k + '</span></li>').join('') + '</ol></div>'
+  };
+}
+function wsUpSub(count) {
+  const rows = [];
+  for (let i = 0; i < count; i++) {
+    const small = ri([2, 9]);
+    const gap = ri([1, 4]);
+    const from = 10 + small + gap * 10;
+    const ans = from - small;
+    rows.push('<tr><td>' + from + ' − ' + small + ' =</td><td style="color:#666">count up: ' + (10 - small) + ' then ' + (ans) + '</td></tr>');
+  }
+  const marks = '';
+  let ticks = '';
+  for (let v = 0; v <= 100; v += 5) ticks += '<i style="left:' + v + '%"></i><u style="left:' + v + '%">' + v + '</u>';
+  return {
+    title: 'Counting up to subtract',
+    sub: 'Start at the small number and count up to the big one. That is how many are left.',
+    body: '<div class="numline">' + ticks + '</div><table class="upsub">' + rows.join('') + '</table>',
+    key: '<div class="key"><h4>How to use this</h4><p class="sub2">Counting up is quicker than counting back when the number being taken away is small. Try it out loud, then write the answer.</p></div>' + marks
+  };
+}
+function renderSheets() {
+  wsPickerFill();
+  $('ws-picker').querySelectorAll('[data-ws]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.ws === WS.kind)));
+  $('ws-table').value = WS.table;
+  $('ws-count').value = WS.count;
+  const sheet = wsBuild();
+  $('ws-paper').innerHTML = wsHeader(sheet.title, sheet.sub) + sheet.body + sheet.key;
+  $('ws-note').textContent = {
+    review: 'Built from her own record: mostly facts already marked known, with a few new ones she has not met. The research on this is the clearest of any practice design.',
+    grid: '24 quick facts for speed. Answers are on a separate page so she can self-check with Cover, Copy, Compare.',
+    ccc: 'The most replicated fluency exercise there is. Most of the sheet is things she knows, so it builds speed without frustration.',
+    family: 'Four related facts in one box. Teaches the inverse operation alongside the product.',
+    area: 'Upper-course groundwork: splitting a 2-digit number before multiplying. The area model is better evidenced than lattice for building understanding.',
+    upsub: 'Counting up beats counting back when the number being taken away is small. Pair it with the abacus view.'
+  }[WS.kind];
+}
 
 /* ---------- Times tables reference ---------- */
 
@@ -1361,7 +1844,7 @@ function dedupeRungs() {
     const seen = new Set();
     const kept = [];
     RUNGS[track].forEach(r => {
-      r.facts = r.facts.map(f => (track === 'mul' ? (f[0] <= f[1] ? f : [f[1], f[0]]) : f.slice()));
+      r.facts = r.facts.map(f => (track === 'sub' ? f.slice() : (f[0] <= f[1] ? f : [f[1], f[0]])));
       r.facts = r.facts.filter(f => {
         const k = f[0] + 'x' + f[1];
         if (seen.has(k)) return false;
@@ -1382,8 +1865,11 @@ function allFacts(track) {
 
 function factStat(k) {
   if (!save.facts) save.facts = {};
-  if (!save.facts[k] || typeof save.facts[k] !== 'object') save.facts[k] = { seen: 0, right: 0, times: [], peeks: 0 };
-  return save.facts[k];
+  if (!save.facts[k] || typeof save.facts[k] !== 'object') save.facts[k] = { seen: 0, right: 0, times: [], peeks: 0, iv: 0, last: 0 };
+  const s = save.facts[k];
+  if (typeof s.iv !== 'number' || !isFinite(s.iv)) s.iv = 0;
+  if (typeof s.last !== 'number' || !isFinite(s.last)) s.last = 0;
+  return s;
 }
 function factState(k) {
   const s = save.facts ? save.facts[k] : null;
@@ -1465,7 +1951,7 @@ function clashesForSession(op, a, b, c, d) {
 
 const kids = {
   track: 'mul', rung: 0, qs: [], qi: 0, right: 0, peeks: 0, newFacts: 0, newKeys: new Set(),
-  cur: null, done: false, peeked: false, startedAt: 0, fast: [], shown: [], revealed: false
+  cur: null, done: false, peeked: false, startedAt: 0, fast: [], shown: [], revealed: false, reask: false
 };
 
 function shuffle(list) {
@@ -1551,7 +2037,22 @@ function startKids(track, rungIdx) {
   nextKidsQuestion();
 }
 
-function nextKidsQuestion() {
+function nextKidsQuestion(msg, cls) {
+  if (kids.reask) {
+    kids.reask = false;
+    kids.revealed = false;
+    kids.peeked = false;
+    kids.startedAt = performance.now();
+    $('k-qnum').textContent = kids.qi;
+    renderKidsHelp(false);
+    updateKidsHud();
+    $('k-input').value = '';
+    const fb = $('k-feedback');
+    fb.textContent = msg || ' ';
+    fb.className = msg ? 'fb ' + (cls || 'info') : 'fb';
+    $('k-input').focus();
+    return;
+  }
   if (kids.qi >= kids.qs.length) { endKids(); return; }
   kids.qi += 1;
   const f = kids.qs[kids.qi - 1];
@@ -1690,6 +2191,7 @@ function submitKids() {
     st.right += 1;
     if (!kids.peeked) st.times.push(Math.round(spent));
     if (st.times.length > 20) st.times.shift();
+    scheduleFact(k, !kids.peeked);
     kids.right += 1;
     if (!kids.peeked) kids.fast.push(spent);
     const before = factState(k);
@@ -1713,12 +2215,15 @@ function submitKids() {
   void $('k-input').offsetWidth;
   $('k-input').classList.add('shake');
   renderKidsHelp(true);
+  scheduleFact(k, false);
+  invalidateFacts();
   persist();
   updateKidsHud();
-  fb.textContent = 'Not this time — it is ' + kids.cur.answer + '. Here is how.';
+  kids.reask = true;
+  fb.textContent = 'Not this time — it is ' + kids.cur.answer + '. Here is how. Have that one again in a moment.';
   fb.className = 'fb bad';
   $('k-row').classList.add('hidden');
-  setTimeout(() => { if (!kids.done) nextKidsQuestion(); }, 2200);
+  setTimeout(() => { if (!kids.done) nextKidsQuestion('Try that one again.', 'info'); }, 2200);
 }
 
 function endKids() {
@@ -1815,6 +2320,15 @@ function renderKidsMenu() {
   setView('kids');
 }
 
+function renderRecords() {
+  $('rec-due').textContent = dueText();
+  $('export-text').value = '';
+  $('btn-copy').hidden = true;
+  $('btn-download').hidden = true;
+  $('export-note').textContent = '';
+  $('import-note').textContent = '';
+  $('import-text').value = '';
+}
 function kidsNextText() {
   const counts = { mul: 0, add: 0, sub: 0 };
   ['mul', 'add', 'sub'].forEach(t => {
@@ -1852,7 +2366,7 @@ try {
     const fixedFacts = {};
     Object.keys(save.facts).forEach(k => {
       const v = save.facts[k];
-      if (v && typeof v === 'object') fixedFacts[k] = cleanStat(v);
+      if (v && typeof v === 'object') fixedFacts[k] = cleanFact(v);
     });
     save.facts = fixedFacts;
   }
@@ -1961,8 +2475,56 @@ const sfx = {
   over: () => { tone(520, 110, 'triangle'); setTimeout(() => tone(780, 140, 'triangle'), 110); }
 };
 
+const VIEW_IDS = ['home', 'lab', 'play', 'kids', 'kp', 'tables', 'abacus', 'sheets', 'records', 'game', 'over'];
+let currentView = 'home';
+let navStack = [];
+let navReady = false;
+function canNav() {
+  return typeof history !== 'undefined' && !!history.pushState && typeof location !== 'undefined';
+}
+function readHash() {
+  if (typeof location === 'undefined') return 'home';
+  const h = String(location.hash || '').replace(/^#/, '');
+  return VIEW_IDS.indexOf(h) > -1 ? h : 'home';
+}
+function initNav() {
+  if (!canNav()) return;
+  const start = readHash();
+  try { history.replaceState({ view: start }, '', '#' + start); } catch (err) { navReady = false; return; }
+  navReady = true;
+  window.addEventListener('popstate', e => {
+    const v = (e.state && e.state.view) || 'home';
+    navStack.pop();
+    if (v !== currentView) setView(v, { push: false });
+    syncBackButton();
+  });
+}
 function setView(name) {
-  ['home', 'lab', 'play', 'kids', 'kp', 'tables', 'abacus', 'game', 'over'].forEach(v => $('view-' + v).classList.toggle('hidden', v !== name));
+  const opts = arguments[1] || {};
+  VIEW_IDS.forEach(v => { const el = $('view-' + v); if (el) el.classList.toggle('hidden', v !== name); });
+  if (name === 'game' || name === 'kp' || name === 'play') $('pause-veil').classList.add('hidden');
+  const wasHidden = currentView !== name;
+  currentView = name;
+  if (navReady && opts.push !== false && wasHidden) {
+    try { history.pushState({ view: name }, '', '#' + name); navStack.push(name); } catch (err) { /* ignore */ }
+  }
+  syncBackButton();
+}
+function syncBackButton() {
+  const b = $('btn-back');
+  if (!b) return;
+  b.classList.toggle('hidden', currentView === 'home');
+  b.textContent = '‹ Back';
+}
+function syncBack() { syncBackButton(); }
+function goBack() {
+  if (navStack.length > 0) {
+    try { history.back(); return; } catch (err) { navStack.pop(); }
+  }
+  navStack = [];
+  renderHome();
+  if (navReady) { try { history.pushState({ view: 'home' }, '', '#home'); } catch (err) { /* ignore */ } }
+  syncBackButton();
 }
 
 function startSession(mode, diff, ops) {
@@ -2229,7 +2791,11 @@ function renderHome() {
   renderBest();
   renderHistory();
   $('lab-next').textContent = labNextText();
-  $('kids-next').textContent = kidsNextText();
+  $('kids-next').textContent = (function () {
+    const due = dueCount();
+    if (due) return due + ' fact' + (due === 1 ? '' : 's') + ' due for review today. ' + kidsNextText();
+    return kidsNextText();
+  })();
   setView('home');
 }
 
@@ -2448,8 +3014,7 @@ function submitLab() {
     bankLabMistake(play.q);
     play.revealed = true;
     renderLab('No — it was ' + fmt(expected), 'bad');
-  } else {
-    play.stepIdx += 1;
+  } else {    play.stepIdx += 1;
     renderLab('No — it was ' + fmt(expected) + '. Carry on.', 'bad');
   }
 }
@@ -2705,6 +3270,63 @@ function wire() {
   $('ab-sub').addEventListener('click', () => abRun(abStepsSub(abNumber(), $('ab-b').value)));
   $('ab-step').addEventListener('click', abNext);
   $('ab-reset').addEventListener('click', abClear);
+  $('btn-back').addEventListener('click', goBack);
+  $('btn-records').addEventListener('click', () => { renderRecords(); setView('records'); });
+  $('btn-export').addEventListener('click', () => {
+    const text = exportPayload();
+    $('export-text').value = text;
+    $('btn-copy').hidden = false;
+    $('btn-download').hidden = false;
+    $('export-note').textContent = 'That is her whole record in one block of text. Copy it, or save it as a file.';
+  });
+  $('btn-copy').addEventListener('click', () => {
+    const text = $('export-text').value;
+    if (!text) return;
+    copyText(text).then(done => {
+      $('export-note').textContent = done ? 'Copied. Paste it into a message to yourself, then paste it in the tablet.' : 'Could not copy automatically. Select the text and copy it by hand.';
+    });
+  });
+  $('btn-download').addEventListener('click', () => {
+    const text = $('export-text').value;
+    if (!text) return;
+    const name = 'mental-maths-' + new Date().toISOString().slice(0, 10) + '.txt';
+    $('export-note').textContent = downloadText(text, name) ? 'Saved as ' + name + '.' : 'Could not save the file. Use Copy instead.';
+  });
+  $('btn-import').addEventListener('click', () => {
+    const note = $('import-note');
+    try {
+      const next = importPayload($('import-text').value);
+      applyImported(next);
+      note.textContent = 'Restored. Her records now include everything in that backup.';
+      $('import-text').value = '';
+      $('rec-due').textContent = dueText();
+      renderHome();
+    } catch (err) {
+      note.textContent = err.message;
+    }
+  });
+  $('btn-file').addEventListener('click', () => $('file-input').click());
+  $('file-input').addEventListener('change', e => {
+    const f = e.target.files && e.target.files[0];
+    if (!f) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      $('import-text').value = String(reader.result || '');
+      $('import-note').textContent = 'File read. Press Restore to merge it in.';
+    };
+    reader.onerror = () => { $('import-note').textContent = 'That file could not be read.'; };
+    reader.readAsText(f);
+  });
+  $('btn-sheets').addEventListener('click', () => { renderSheets(); setView('sheets'); });
+  $('btn-sheets-print').addEventListener('click', () => { try { window.print(); } catch (e) { /* ignore */ } });
+  $('ws-picker').addEventListener('click', e => {
+    const b = e.target.closest('[data-ws]');
+    if (!b) return;
+    WS.kind = b.dataset.ws;
+    renderSheets();
+  });
+  $('ws-table').addEventListener('change', e => { WS.table = Number(e.target.value) || 7; renderSheets(); });
+  $('ws-count').addEventListener('change', e => { WS.count = Number(e.target.value) || 24; renderSheets(); });
   $('p-hint').addEventListener('click', () => { play.revealed = true; renderLab('Method revealed — now answer it.', 'info'); });
   $('p-next-example').addEventListener('click', () => nextLabQuestion());
   $('p-input').addEventListener('input', () => {
@@ -2761,6 +3383,8 @@ function flashOpHint() {
 
 renderHome();
 wire();
+initNav();
+if (currentView !== 'home') setView(currentView, { push: false });
 </script>
 </body>
 </html>

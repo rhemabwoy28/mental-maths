@@ -65,6 +65,51 @@ auto-play, so a child decides the pace):
 
 Free play is the default: tap any bead and the readout tells you what you are looking at.
 
+### Records, and moving between devices
+Progress lives in `localStorage`, which is per browser and per device — so it does **not**
+follow her from the phone to the tablet on its own. **Records** solves that:
+
+- **Due for review today** — how many facts the scheduler thinks are ready.
+- **Save a backup** produces a single block of text, with **Copy** (clipboard, with an
+  `execCommand` fallback for older Safari) and **Save file** (a `Blob` download, typed
+  `application/octet-stream` because iOS Safari ignores `download` for text types).
+- **Restore** accepts pasted text or a file, and **merges** rather than replaces: for every
+  fact it keeps whichever copy is further along, so restoring an old backup can never undo
+  newer progress. Totals take the larger value, personal bests take the maximum.
+
+Backups are tagged with an app name and a version number. A file from another app, a
+corrupt file, or one from a newer build is refused with a plain-English message instead of
+corrupting the save.
+
+### Spaced review
+The single largest effect in the research (spaced vs massed retrieval, **g = 0.74**; Latimier,
+Peyre & Ramus 2021) was completely missing from the first version. Every fact now carries a
+schedule:
+
+- The first clean answer leaves the fact due **the same day**, so it comes back once more
+  before the day ends.
+- Each further clean answer widens the gap: same day → 1 → 2 → 4 → 7 → 15 → 30 days.
+- A wrong answer, or an answer she had to peek at, sends it back to the start.
+- **Due for review** counts the facts whose gap has elapsed.
+
+### Re-asking a wrong answer
+Retrieval practice produces **no** learning when success is under 50% *and* no feedback is
+given (Rowland 2014), so a wrong answer is no longer just marked wrong: the method is
+revealed, and then **the same fact comes straight back** before moving on. It does not cost
+a question number and does not count as a second attempt.
+
+### Worksheets
+Printable paper practice, generated from her own record, with a print stylesheet.
+
+| Sheet | Why |
+| --- | --- |
+| **Review mix** | Mostly facts already marked known with a small new slice, random order, separate key. The best-evidenced practice design in the whole area (Rohrer et al. 2020 cluster RCT, d = 0.83). |
+| **Fluency grid** | Every multiple of the chosen table once, shuffled, answer key on its own page. |
+| **Cover & copy** | The most replicated fluency intervention there is: answers printed in a foldable column, about 9 known facts for every new one. |
+| **Fact family** | The same four facts in a box, so the product and its inverse are stored together. Endorsed by the National Mathematics Advisory Panel. |
+| **Area model** | 2-digit × 1-digit, split into tens and ones. All four boxes blank — printing the partial products gives the answer away. |
+| **Counting up** | Subtraction with a number line, which levels subtraction with addition (Fuson's replicated finding). |
+
 ### First Facts
 For younger children. Three tracks (addition, subtraction, multiplication), each a ladder of
 rungs. The load-bearing property:
@@ -111,7 +156,7 @@ delivers the mental model in five minutes a day instead of three years.
 npm test
 ```
 
-399 assertions run against the real `index.html` with a stubbed DOM, covering:
+508 assertions run against the real `index.html` with a stubbed DOM, covering:
 
 - every generated question is arithmetically exact
 - every fact in every rung is derivable from rungs below it, and every scaffold step lands
@@ -124,6 +169,13 @@ npm test
   land on the right number with every column staying in range
 - every times-table multiple is correct for all 12 tables against all three caps
 - the table drill only ever asks the chosen multiplier
+- the back-button router pushes and pops history correctly, and every view is reachable
+- the review schedule widens the gap, caps at 30 days, resets on a wrong answer, and survives
+  a save/load round trip
+- a wrong answer is re-asked without costing a question or an attempt
+- every backup is accepted or refused with a readable reason, and merging never loses facts
+- every worksheet type is arithmetically correct, and the area model does not print its own
+  answer
 - fact mastery, unlocking and save-file corruption recovery
 
 The suites run against the shipped file rather than a copy, so they cannot drift from what
