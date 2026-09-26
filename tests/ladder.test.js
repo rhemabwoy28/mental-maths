@@ -46,7 +46,7 @@ const stripped = src
   + ' derive, knownFacts, invalidateFacts, allFacts, isKnownFact, clashesForSession, sameFact, factOperands, buildKidsSession,'
   + ' save, kids, persist, medianOf, startKids, nextKidsQuestion, submitKids, endKids, renderKidsMenu,'
   + ' renderKidsHelp, renderBeads, kidsNextText, setView, startSession, makeQuestion, buildQuestion,'
-  + ' shuffle, dedupeRungs, col, updateKidsHud,'
+  + ' shuffle, dedupeRungs, col, updateKidsHud, ladderFacts,'
   + ' STRATEGIES, play, startLab, submitLab, renderLabMenu, renderLab, recordSkill, labNextText,'
   + ' beadGroups, renderTotals, renderHistory, renderBest };\n';
 
@@ -367,7 +367,93 @@ console.log('14. finishing a session writes the summary and unlocks nothing earl
   ok('note mentions peeking honestly', /Peek/.test(String(bb.el('ks-note').textContent)) || /three seconds|rung/.test(String(bb.el('ks-note').textContent)), String(bb.el('ks-note').textContent));
 }
 
-console.log('15. nothing earlier broke');
+console.log('15. the scaffold uses the ladder, not personal mastery (regression)');
+{
+  const fresh = boot();
+  const Z = fresh.X;
+  const showFor = (track, rung, a, bb) => {
+    Z.startKids(track, rung);
+    Z.kids.qs = [[a, bb]];
+    Z.kids.qi = 0;
+    Z.kids.done = false;
+    Z.nextKidsQuestion();
+    return Z.kids.cur.der;
+  };
+  const d89 = showFor('mul', 8, 8, 9);
+  ok('8 x 9 on rung 9 teaches the times-ten method, not counting', d89.need.indexOf(Z.factKey('mul', 8, 10)) > -1, d89.steps.map(s => s.expr).join(' | '));
+  ok('8 x 9 lands on 72 via 80 then 72', d89.steps[0].answer === 80 && d89.steps[1].answer === 72);
+  ok('no step tells her to count in groups', !d89.steps.some(s => /Count in groups/.test(s.label)), d89.steps.map(s => s.label).join(' | '));
+
+  const d67 = showFor('mul', 6, 6, 7);
+  ok('6 x 7 on rung 7 teaches 36 + 6, not counting', d67.need.indexOf(Z.factKey('mul', 6, 6)) > -1 && !d67.steps.some(s => /Count in groups/.test(s.label)), d67.steps.map(s => s.expr).join(' | '));
+  ok('6 x 7 lands on 42', d67.steps[d67.steps.length - 1].answer === 42);
+
+  const d88 = showFor('mul', 8, 8, 8);
+  ok('8 x 8 on rung 9 teaches 56 + 8, not counting', !d88.steps.some(s => /Count in groups/.test(s.label)), d88.steps.map(s => s.expr).join(' | '));
+  ok('8 x 8 lands on 64', d88.steps[d88.steps.length - 1].answer === 64);
+
+  let counted = 0, derived = 0;
+  Z.RUNGS.mul.forEach((r, i) => r.facts.forEach(f => {
+    const d = showFor('mul', i, f[0], f[1]);
+    if (d.steps.some(s => /Count in groups/.test(s.label))) counted++;
+    else derived++;
+  }));
+  ok('no fact on any rung falls back to counting', counted === 0, counted + ' of ' + (counted + derived) + ' fell back');
+  ok('the vast majority are built from lower rungs', derived > counted, 'derived=' + derived + ' counted=' + counted);
+
+  ok('ladderFacts includes the current rung and everything below', (() => {
+    const s = Z.ladderFacts('mul', 8);
+    return s.has(Z.factKey('mul', 8, 10)) && s.has(Z.factKey('mul', 6, 6)) && s.has(Z.factKey('mul', 9, 9)) === false;
+  })());
+}
+
+console.log('16. the summary is honest about a bad session (regression)');
+{
+  const sb = boot();
+  const W = sb.X;
+  W.startKids('mul', 0);
+  W.kids.qs = [[1, 1]];
+  W.kids.qi = 0;
+  W.kids.done = false;
+  W.nextKidsQuestion();
+  sb.el('k-input').value = '999';
+  sb.tick(500);
+  W.submitKids();
+  W.endKids();
+  ok('a 0-out-of-1 session is not called well done', !/well done/i.test(String(sb.el('k-summary-title').textContent)), String(sb.el('k-summary-title').textContent));
+  ok('a 0-out-of-1 session invites another go', /another go/i.test(String(sb.el('k-summary-title').textContent)), String(sb.el('k-summary-title').textContent));
+  const pb = boot();
+  const V = pb.X;
+  V.startKids('mul', 0);
+  V.kids.qs = [[1, 1]];
+  V.kids.qi = 0;
+  V.kids.done = false;
+  V.nextKidsQuestion();
+  pb.el('k-input').value = String(V.kids.cur.answer);
+  pb.tick(500);
+  V.submitKids();
+  V.endKids();
+  ok('a perfect session is praised', /perfect ten/i.test(String(pb.el('k-summary-title').textContent)), String(pb.el('k-summary-title').textContent));
+}
+
+console.log('17. the answer box is reachable without scrolling (regression)');
+{
+  ok('the input row comes before the method card in the markup', (() => {
+    const h = fs.readFileSync(process.argv[2], 'utf8');
+    const kp = h.slice(h.indexOf('id="view-kp"'));
+    const ans = kp.indexOf('id="k-ansrow"');
+    const help = kp.indexOf('id="k-help"');
+    const q = kp.indexOf('id="k-question"');
+    return q > -1 && ans > q && help > ans;
+  })(), 'question < input < method');
+  ok('the method card starts hidden', (() => {
+    const h = fs.readFileSync(process.argv[2], 'utf8');
+    return /id="k-help"[^>]*class="[^"]*hidden|id="k-help" class="card hidden"/.test(h) || h.includes('class="card hidden" id="k-help"');
+  })());
+  ok('a progress bar exists for the session', fs.readFileSync(process.argv[2], 'utf8').includes('id="k-progress"'));
+}
+
+console.log('18. nothing earlier broke');
 {
   const bb = boot(); const Y = bb.X;
   Y.startSession('sprint', 'easy', ['add', 'sq']);

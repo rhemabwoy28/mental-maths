@@ -43,8 +43,8 @@ label{font-size:.72rem;text-transform:uppercase;letter-spacing:.1em;color:var(--
 .pick:hover{border-color:#3a4a6d}
 .pick[aria-pressed="true"]{border-color:var(--acc);background:#12291f;box-shadow:inset 0 0 0 1px rgba(94,230,168,.28)}
 .pick[aria-pressed="true"] span{color:var(--acc)}
-.op{flex:0 0 auto;min-width:64px;font-size:1.5rem;padding:10px 14px;line-height:1}
-.op:nth-last-child(2),.op:last-child{font-size:1.05rem;min-width:76px}
+.op{flex:1 1 auto;min-width:0;font-size:1.4rem;padding:11px 6px;line-height:1}
+.op:nth-last-child(2){font-size:.95rem}
 .op[aria-pressed="true"]{border-color:var(--acc2);background:#10222c;box-shadow:inset 0 0 0 1px rgba(87,201,242,.28)}
 .op[aria-pressed="true"] span{color:var(--acc2)}
 button{font:inherit;cursor:pointer;border-radius:11px;border:1px solid var(--line);background:var(--panel2);color:var(--txt);padding:11px 16px;transition:transform .06s ease,border-color .15s}
@@ -145,6 +145,39 @@ input[type=text]{
 .colhead{font-size:.66rem;color:var(--mut);text-align:center;margin-bottom:3px;text-transform:uppercase;letter-spacing:.08em}
 .pointer{font-size:.72rem;color:var(--acc2);margin:2px 0 8px}
 .kq{font-variant-numeric:tabular-nums}
+
+/* First Facts: a warmer, roomier zone for a younger learner */
+.kid .qbox{padding:clamp(16px,11vh,90px) 0 18px}
+.kid .qtext{font-size:clamp(2.8rem,14vw,4.8rem);line-height:1.05;letter-spacing:0}
+.kid-hud .stat{padding:7px 8px}
+.kid-hud .stat b{font-size:1.15rem}
+.kid-ans input{font-size:clamp(1.5rem,7vw,2.1rem);padding:17px 12px;border-radius:16px;color:var(--txt)}
+.kid-ans input::placeholder{color:#5b6a86;font-size:.62em;letter-spacing:.06em}
+.kid-ans .submit{font-size:1.05rem;font-weight:800;letter-spacing:.04em;padding:0 20px;border-radius:16px}
+.btn-hint{
+  flex:1;padding:15px;border-radius:14px;background:#10222c;border-color:#24506a;color:var(--acc2);
+  font-weight:600;letter-spacing:.01em;font-size:.98rem
+}
+.btn-hint:hover{border-color:var(--acc2);background:#132a36}
+.kbar{height:9px;background:#1a2440;border-radius:99px;overflow:hidden;margin-bottom:14px;box-shadow:inset 0 1px 2px rgba(0,0,0,.4)}
+.kbar i{display:block;height:100%;min-width:9px;width:0;background:linear-gradient(90deg,var(--acc2),var(--acc));border-radius:99px;transition:width .35s ease}
+.kid #k-help{margin-top:6px}
+.kid #k-help .steps{font-size:1.05rem}
+.kid #k-help .steps .sa{font-size:1.1rem}
+
+/* Home: separate the three audiences so the page is not one long wall */
+.hub{border-radius:18px;border:1px solid var(--line);background:var(--panel);padding:20px 18px;margin-bottom:16px}
+.hub-kid{border-color:#3a5a44;background:linear-gradient(150deg,#152a20 0%,var(--panel) 62%)}
+.hub-kid h2{color:var(--acc);margin-bottom:4px}
+.hub-kid .btn-main{font-size:1.3rem;padding:19px}
+.hub-kid .btn-main::after{content:"  ›";font-weight:400}
+.hub-lead{font-size:.95rem;color:var(--mut);margin:0 0 14px;max-width:56ch}
+.divider{display:flex;align-items:center;gap:10px;color:var(--mut);font-size:.72rem;text-transform:uppercase;letter-spacing:.14em;margin:22px 2px 12px;font-weight:700}
+.divider::after{content:"";flex:1;height:1px;background:var(--line)}
+.hub-go{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.hub-go .btn-main{flex:1 1 200px}
+.big-op{font-size:1.05rem;font-weight:700;letter-spacing:.02em}
+@media (max-width:420px){.kid .qtext{font-size:3rem}}
 .prompt .bl{color:var(--mut);font-size:.74rem;font-family:system-ui,sans-serif;display:block;letter-spacing:.1em;text-transform:uppercase}
 .explain{border-left:3px solid var(--acc);padding-left:12px;margin:14px 0}
 kbd{background:#0d1424;border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:1px 6px;font:inherit;font-size:.78rem;color:var(--txt)}
@@ -157,6 +190,17 @@ kbd{background:#0d1424;border:1px solid var(--line);border-bottom-width:2px;bord
   <section id="view-home" class="view">
     <h1>Mental Maths</h1>
     <p class="sub">Works offline. Everything stays on this device.</p>
+
+    <div class="hub hub-kid">
+      <h2>First Facts</h2>
+      <p class="hub-lead">For a younger learner. Addition, subtraction and multiplication from the ground up — every rung is built only from the rungs below it, so nothing has to be guessed.</p>
+      <p class="note" id="kids-next">Nothing learnt yet. Start at the bottom of the ladder.</p>
+      <div class="hub-go" style="margin-top:14px">
+        <button class="btn-main big-op" id="btn-kids" type="button">Open First Facts</button>
+      </div>
+    </div>
+
+    <div class="divider">Speed drills</div>
 
     <div class="card">
       <h2>Mode</h2>
@@ -189,10 +233,12 @@ kbd{background:#0d1424;border:1px solid var(--line);border-bottom-width:2px;bord
       <p class="tiny muted" id="op-hint" style="margin:10px 0 0">Pick at least one. Several picked = mixed questions.</p>
     </div>
 
-    <div class="grid2" style="margin-bottom:14px">
-      <button class="btn-main" id="btn-start" type="button">Start</button>
-      <button class="btn-main" id="btn-drill" type="button" hidden>Drill my mistakes</button>
+    <div class="hub-go" style="margin-bottom:16px">
+      <button class="btn-main big-op" id="btn-start" type="button">Start</button>
+      <button class="btn-main big-op" id="btn-drill" type="button" hidden>Drill my mistakes</button>
     </div>
+
+    <div class="divider">Shortcuts</div>
 
     <div class="card">
       <h2>Strategy Lab</h2>
@@ -203,14 +249,7 @@ kbd{background:#0d1424;border:1px solid var(--line);border-bottom-width:2px;bord
       </div>
     </div>
 
-    <div class="card">
-      <h2>First Facts</h2>
-      <p class="tiny muted" style="margin:0 0 12px">Addition, subtraction and multiplication from the ground up. Each rung only uses facts from the rungs below it, so nothing has to be guessed. Hard facts like 8 &times; 9 are saved until the pieces they are built from are solid.</p>
-      <p class="note" id="kids-next">Nothing learnt yet. Start at the bottom of the ladder.</p>
-      <div class="row" style="margin-top:12px">
-        <button class="btn-main" id="btn-kids" type="button">Open First Facts</button>
-      </div>
-    </div>
+    <div class="divider">Your record</div>
 
     <div class="card">
       <h2>Personal bests</h2>
@@ -420,7 +459,7 @@ kbd{background:#0d1424;border:1px solid var(--line);border-bottom-width:2px;bord
     </div>
   </section>
 
-  <section id="view-kp" class="view hidden">
+  <section id="view-kp" class="view kid hidden">
     <div class="topbar">
       <span class="tag">Rung <b id="k-rung">1</b></span>
       <span class="tag">Question <b id="k-qnum">1</b> of 10</span>
@@ -428,36 +467,38 @@ kbd{background:#0d1424;border:1px solid var(--line);border-bottom-width:2px;bord
       <button class="btn-ghost" id="btn-kids-quit" type="button">Stop</button>
     </div>
 
-    <div class="hud">
+    <div class="kbar" role="progressbar" aria-label="Questions done"><i id="k-progress"></i></div>
+
+    <div class="hud kid-hud">
       <div class="stat"><i>Right</i><b id="k-right" class="hot">0</b></div>
-      <div class="stat"><i>Peeked</i><b id="k-peeked">0</b></div>
-      <div class="stat"><i>New facts</i><b id="k-new">0</b></div>
+      <div class="stat"><i>Hints used</i><b id="k-peeked">0</b></div>
+      <div class="stat"><i>Learned</i><b id="k-new">0</b></div>
     </div>
 
-    <div class="qbox">
-      <div class="qtext" id="k-question" style="font-size:clamp(2.6rem,12vw,4.6rem)">&#8230;</div>
-      <p class="tiny muted" id="k-status" style="margin:10px 0 0"></p>
+    <div class="qbox kid-q">
+      <div class="qtext" id="k-question">&#8230;</div>
+      <p class="tiny muted" id="k-status" style="margin:12px 0 0"></p>
     </div>
 
-    <div class="card" id="k-help">
+    <div class="ansrow kid-ans" id="k-ansrow">
+      <input type="text" id="k-input" inputmode="numeric" autocomplete="off" autocapitalize="off"
+             spellcheck="false" placeholder="your answer" aria-label="Your answer">
+      <button class="submit" id="k-submit" type="button" aria-label="Submit">OK</button>
+    </div>
+    <div class="row" id="k-row">
+      <button class="btn-hint" id="k-hint" type="button">Show me how</button>
+    </div>
+    <p class="fb" id="k-feedback">&nbsp;</p>
+
+    <div class="card hidden" id="k-help">
       <h2 id="k-help-label">How to work it out</h2>
       <div id="k-beads"></div>
       <ul class="steps" id="k-steps"></ul>
       <p class="tiny muted" id="k-why" style="margin:12px 0 0"></p>
     </div>
 
-    <div class="ansrow" id="k-ansrow">
-      <input type="text" id="k-input" inputmode="numeric" autocomplete="off" autocapitalize="off"
-             spellcheck="false" placeholder="answer" aria-label="Your answer">
-      <button class="submit" id="k-submit" type="button" aria-label="Submit">&#9166;</button>
-    </div>
-    <div class="row" style="margin-top:10px" id="k-row">
-      <button class="btn-ghost" id="k-hint" type="button" style="flex:1">Show me how</button>
-    </div>
-    <p class="fb" id="k-feedback">&nbsp;</p>
-
     <div class="card hidden" id="k-summary">
-      <h2>Well done</h2>
+      <h2 id="k-summary-title">Well done</h2>
       <div class="grid3">
         <div class="stat"><i>Right</i><b id="ks-right" class="hot">0/10</b></div>
         <div class="stat"><i>New facts</i><b id="ks-new">0</b></div>
@@ -1003,6 +1044,16 @@ function knownFacts() {
   KNOWN_CACHE = set;
   return set;
 }
+function ladderFacts(track, rung) {
+  const set = new Set();
+  for (let i = 0; i <= rung && i < RUNGS[track].length; i++) {
+    RUNGS[track][i].facts.forEach(f => {
+      set.add(factKey(track, f[0], f[1]));
+      set.add(factKey(track, f[1], f[0]));
+    });
+  }
+  return set;
+}
 function invalidateFacts() { KNOWN_CACHE = null; }
 
 function factOperands(op, a, b) {
@@ -1124,7 +1175,7 @@ function nextKidsQuestion() {
   const f = kids.qs[kids.qi - 1];
   kids.cur = { op: kids.track, a: f[0], b: f[1] };
   kids.cur.answer = factAns(kids.cur.op, kids.cur.a, kids.cur.b);
-  kids.cur.der = derive(kids.cur.op, kids.cur.a, kids.cur.b, knownFacts());
+  kids.cur.der = derive(kids.cur.op, kids.cur.a, kids.cur.b, ladderFacts(kids.track, kids.rung));
   kids.peeked = false;
   kids.revealed = false;
   kids.startedAt = performance.now();
@@ -1147,6 +1198,7 @@ function nextKidsQuestion() {
 
 function renderKidsHelp(revealed) {
   const d = kids.cur.der;
+  $('k-help').classList.toggle('hidden', !revealed);
   $('k-help-label').textContent = revealed ? 'How to work it out' : 'A clue is here if you want it';
   const list = $('k-steps');
   list.innerHTML = '';
@@ -1232,6 +1284,8 @@ function updateKidsHud() {
   $('k-right').textContent = kids.right;
   $('k-peeked').textContent = kids.peeks;
   $('k-new').textContent = kids.newFacts;
+  const done = Math.min(kids.qi - (kids.done ? 0 : 1), kids.qs.length);
+  $('k-progress').style.width = (kids.qs.length ? Math.round(done / kids.qs.length * 100) : 0) + '%';
 }
 
 function submitKids() {
@@ -1295,6 +1349,10 @@ function endKids() {
   $('k-row').classList.add('hidden');
   $('k-help').classList.add('hidden');
   $('k-summary').classList.remove('hidden');
+  $('k-summary-title').textContent = kids.right === 0 ? 'Have another go'
+    : kids.right === total ? 'Perfect ten'
+    : kids.right >= total * 0.7 ? 'Well done'
+    : 'Keep going';
   $('ks-right').textContent = kids.right + '/' + total;
   $('ks-new').textContent = kids.newFacts;
   $('ks-fast').textContent = fast ? (Math.min.apply(null, kids.fast) / 1000).toFixed(1) + 's' : '—';
