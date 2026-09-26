@@ -198,20 +198,38 @@ input[type=text]{
 .tvlegend i{display:inline-block;width:11px;height:11px;border-radius:3px;vertical-align:-1px;margin-right:5px;border:1px solid var(--line)}
 
 /* Abacus */
-.abacus{display:flex;gap:10px;justify-content:center;padding:18px 6px 10px;background:#0d1424;border:1px solid var(--line);border-radius:16px;overflow-x:auto}
-.abcol{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:52px}
-.abcap{font-size:.68rem;color:var(--mut);font-family:ui-monospace,Menlo,Consolas,monospace}
-.abup{width:30px;height:30px;border-radius:50%;background:#1b2740;border:2px solid #3a4a6d;margin-top:14px}
+.abacus{
+  display:flex;gap:2px;justify-content:safe center;padding:16px 4px 8px;
+  background:linear-gradient(#18243f,#0d1424);border:1px solid var(--line);border-radius:16px;
+  overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity
+}
+.abcol{flex:0 0 auto;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:var(--colw,54px);scroll-snap-align:center}
+.abup{width:var(--bead,32px);height:var(--bead,32px);border-radius:50%;background:#1b2740;border:2px solid #3a4a6d;margin-top:14px;padding:0;cursor:pointer}
 .abup.on{background:var(--acc);border-color:var(--acc)}
-.abbeam{width:100%;height:5px;background:#3a4a6d;border-radius:2px;margin:3px 0}
-.ablow{width:30px;height:30px;border-radius:50%;background:#1b2740;border:2px solid #3a4a6d}
+.abbeam{width:calc(var(--colw,54px) - 1px);height:6px;background:#55688f;border-radius:2px;margin:2px 0;position:relative}
+.ablow{width:var(--bead,32px);height:var(--bead,32px);border-radius:50%;background:#1b2740;border:2px solid #3a4a6d;padding:0;cursor:pointer}
 .ablow.on{background:var(--acc2);border-color:var(--acc2)}
-.ablow:disabled,.abup:disabled{opacity:.4;cursor:default}
+.ablow.hot{box-shadow:0 0 0 3px rgba(255,209,102,.35);border-color:var(--warn)}
+.abup.hot{box-shadow:0 0 0 3px rgba(255,209,102,.35);border-color:var(--warn)}
+.abcap{font-size:.6rem;color:var(--mut);font-family:ui-monospace,Menlo,Consolas,monospace;white-space:nowrap;min-height:1.1em}
+.abcap.unit{color:var(--acc);font-weight:700}
 .absay{background:#101a2b;border-left:3px solid var(--acc);padding:11px 13px;border-radius:0 10px 10px 0;font-size:1rem;min-height:3.2em}
 .absay b{color:var(--acc)}
 .abn{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .abn input{width:96px;text-align:center;font-size:1.3rem;font-weight:700;padding:12px 8px;border-radius:12px;border:1px solid var(--line);background:#0d1424;color:var(--txt);font-family:ui-monospace,Menlo,Consolas,monospace}
 .abstep{font-size:.8rem;color:var(--mut)}
+.hands{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:4px}
+.hand{border:1px solid var(--line);border-radius:12px;padding:11px 10px;background:#111a2c}
+.hand h5{margin:0 0 9px;font-size:.66rem;text-transform:uppercase;letter-spacing:.11em;color:var(--mut);font-weight:700}
+.fingers{display:flex;gap:6px;justify-content:center}
+.finger{width:28px;height:28px;border-radius:50%;background:#1b2740;border:2px solid #33456a;display:grid;place-items:center;font-size:.68rem;color:var(--mut);font-weight:700}
+.finger.on{background:var(--acc);border-color:var(--acc);color:#04241a}
+.hand.left .finger.on{background:var(--acc2);border-color:var(--acc2);color:#052430}
+.handnote{font-size:.74rem;color:var(--mut);margin:10px 0 0;text-align:center}
+.tech{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.tech span{background:#132033;border:1px solid var(--line);border-radius:9px;padding:8px 10px;font-size:.75rem;color:var(--mut)}
+.tech span b{color:var(--txt)}
+@media (max-width:420px){.tvgrid{grid-template-columns:repeat(auto-fill,minmax(94px,1fr))}}
 @media (max-width:420px){.abup,.ablow{width:26px;height:26px}.abcol{min-width:44px}.tvgrid{grid-template-columns:repeat(auto-fill,minmax(94px,1fr))}}
 @media (max-width:420px){.kid .qtext{font-size:2.8rem}}
 
@@ -661,10 +679,36 @@ kbd{background:#0d1424;border:1px solid var(--line);border-bottom-width:2px;bord
       <span class="spacer"></span>
     </div>
     <h1 style="font-size:1.5rem">Abacus</h1>
-    <p class="sub">One bead is one. The big bead is five. A column is worth ten times the one on its right.</p>
+    <p class="sub">One bead is one. The big bead is five. A column is worth ten times the one on its right. The little dots mark every third column, just like a real soroban.</p>
+
+    <div class="card">
+      <h2>Count on your hands first</h2>
+      <div class="hands">
+        <div class="hand left">
+          <h5>Left hand &middot; 1 to 5</h5>
+          <div class="fingers" id="fingers-left"></div>
+        </div>
+        <div class="hand">
+          <h5>Right hand &middot; 6 to 10</h5>
+          <div class="fingers" id="fingers-right"></div>
+        </div>
+      </div>
+      <p class="handnote" id="hand-note">Show a number on your fingers, then find it on the frame.</p>
+      <div class="tech">
+        <span><b>Right thumb</b> pushes the 1-beads up to the bar</span>
+        <span><b>Right finger</b> does everything else</span>
+        <span><b>Left hand</b> carries and borrows</span>
+      </div>
+    </div>
 
     <div class="abacus" id="ab-frame"></div>
-    <p class="tiny muted" style="text-align:center;margin:0 0 14px">Tap the beads to move them. Nothing is broken if you get it wrong.</p>
+    <p class="tiny muted" style="text-align:center;margin:0 0 10px" id="ab-frame-note">Swipe the frame sideways to reach the other columns.</p>
+
+    <div class="row" style="margin-bottom:14px" id="ab-size-picker">
+      <button class="pick" data-cols="7" type="button" aria-pressed="false"><b>7 columns</b><span>big beads for fingers</span></button>
+      <button class="pick" data-cols="9" type="button" aria-pressed="false"><b>9 columns</b><span>everyday size</span></button>
+      <button class="pick" data-cols="13" type="button" aria-pressed="false"><b>13 columns</b><span>standard soroban</span></button>
+    </div>
 
     <p class="absay" id="ab-say">Tap any bead to play. Or choose something below.</p>
 
@@ -1217,55 +1261,122 @@ function renderTables() {
 
 /* ---------- Abacus ---------- */
 
-const AB_PLACES = [1, 10, 100, 1000];
-const ab = { val: [0, 0, 0, 0], steps: [], at: 0 };
-const PLACE_WORD = ['ones', 'tens', 'hundreds', 'thousands'];
-function abNumber() { return ab.val[0] + ab.val[1] * 10 + ab.val[2] * 100 + ab.val[3] * 1000; }
+const AB_LABELS = ['1', '10', '100', '1k', '10k', '100k', '1M', '10M', '100M', '1B', '10B', '100B', '1T'];
+const AB_SIZES = [7, 9, 13];
+const ab = { cols: 13, val: [], steps: [], at: 0, hot: -1, digits: [] };
+function PLACE_WORD(i) {
+  return ['ones', 'tens', 'hundreds', 'thousands', 'ten thousands', 'hundred thousands',
+    'millions', 'ten millions', 'hundred millions', 'billions', 'ten billions', 'hundred billions', 'trillions'][i] || ('column ' + (i + 1));
+}
+function abResize(cols) {
+  const n = AB_SIZES.indexOf(cols) > -1 ? cols : 13;
+  const old = ab.val.slice();
+  const oldCols = ab.cols;
+  ab.cols = n;
+  ab.val = [];
+  for (let i = 0; i < n; i++) ab.val.push(0);
+  for (let i = 0; i < n; i++) ab.val[i] = i < oldCols ? (old[i] || 0) : 0;
+}
+function abNumber() {
+  let n = 0;
+  for (let i = ab.cols - 1; i >= 0; i--) n = n * 10 + (ab.val[i] || 0);
+  return n;
+}
 function abDigits(n) {
-  n = Math.max(0, Math.min(9999, Math.round(Number(n) || 0)));
-  const d = [0, 0, 0, 0];
-  for (let i = 0; i < 4; i++) d[i] = Math.floor(n / AB_PLACES[i]) % 10;
+  n = Math.max(0, Math.floor(Number(n) || 0));
+  const d = [];
+  for (let i = 0; i < ab.cols; i++) d.push(0);
+  let v = n;
+  for (let i = 0; i < ab.cols && v > 0; i++) { d[i] = v % 10; v = Math.floor(v / 10); }
   return d;
 }
 function abSet(n) {
-  n = Math.max(0, Math.min(9999, Math.round(Number(n) || 0)));
+  n = Math.max(0, Math.min(9999999999999, Math.round(Number(n) || 0)));
   ab.val = abDigits(n);
   return n;
 }
 function abSplit(n) {
-  n = Math.max(0, Math.min(9999, Math.round(Number(n) || 0)));
+  const d = abDigits(n);
   const out = [];
-  for (let i = 0; i < 4; i++) {
-    const d = Math.floor(n / AB_PLACES[i]) % 10;
-    if (d) out.push({ place: i, digit: d });
-  }
+  for (let i = 0; i < ab.cols; i++) if (d[i]) out.push({ place: i, digit: d[i] });
   return out;
 }
 function abLowerCount(i) { return ab.val[i] >= 5 ? ab.val[i] - 5 : ab.val[i]; }
 function abUpperOn(i) { return ab.val[i] >= 5; }
+function abReadDigits() { return ab.val.slice(); }
+function abScale() {
+  if (ab.cols <= 7) return { col: 62, bead: 40 };
+  if (ab.cols <= 9) return { col: 54, bead: 34 };
+  return { col: 40, bead: 26 };
+}
 
+function renderHands() {
+  const d = ab.digits.length ? ab.digits : ab.val;
+  const ones = d.length ? d[0] : 0;
+  const left = $('fingers-left');
+  const right = $('fingers-right');
+  const build = (box, from, to) => {
+    if (box.children.length !== to - from + 1) {
+      box.innerHTML = '';
+      for (let v = from; v <= to; v++) {
+        const f = document.createElement('span');
+        f.className = 'finger';
+        f.textContent = v;
+        box.appendChild(f);
+      }
+    }
+    [...box.children].forEach((c, i) => {
+      const v = from + i;
+      c.classList.toggle('on', v <= ones);
+    });
+  };
+  build(left, 1, 5);
+  build(right, 6, 10);
+  $('hand-note').textContent = ones === 0
+    ? 'Nothing showing yet. The frame is cleared, which is how every sum starts.'
+    : 'The last column is showing ' + ones + '. Say it on your fingers, then check the beads match.';
+}
+function highlightCol(i) {
+  ab.hot = i;
+  renderAbacus();
+  if (i < 0) return;
+  const box = $('ab-frame');
+  const target = box.children[ab.cols - 1 - i];
+  if (target && target.scrollIntoView) {
+    try { target.scrollIntoView({ block: 'nearest', inline: 'center' }); } catch (e) { /* ignore */ }
+  }
+}
 function renderAbacus() {
+  const scale = abScale();
   const frame = $('ab-frame');
+  frame.style.setProperty('--colw', scale.col + 'px');
+  frame.style.setProperty('--bead', scale.bead + 'px');
   frame.innerHTML = '';
-  for (let i = 3; i >= 0; i--) {
+  for (let i = ab.cols - 1; i >= 0; i--) {
     const col = document.createElement('div');
     col.className = 'abcol';
+    const isUnit = (i + 1) % 3 === 0;
     const up = document.createElement('button');
     up.type = 'button';
-    up.className = 'abup' + (abUpperOn(i) ? ' on' : '');
+    up.className = 'abup' + (abUpperOn(i) ? ' on' : '') + (ab.hot === i ? ' hot' : '');
     up.title = 'worth five';
-    up.setAttribute('aria-label', AB_PLACES[i] + ' column, five bead');
+    up.setAttribute('aria-label', 'thousands column, five bead'.replace('thousands ', AB_LABELS[i] + ' column, '));
     up.addEventListener('click', () => {
       ab.val[i] = abUpperOn(i) ? abLowerCount(i) : 5 + abLowerCount(i);
-      ab.steps = []; ab.at = 0;
-      renderAbacus();
+      ab.steps = []; ab.at = 0; ab.hot = -1;
+      renderAbacus(); renderHands();
       sayAb('You are now at <b>' + abNumber() + '</b>.');
     });
     const beam = document.createElement('span');
     beam.className = 'abbeam';
+    if (isUnit) {
+      const dot = document.createElement('i');
+      dot.style.cssText = 'position:absolute;left:50%;top:-4px;width:7px;height:7px;margin-left:-3.5px;border-radius:50%;background:var(--acc)';
+      beam.appendChild(dot);
+    }
     const beamCap = document.createElement('span');
-    beamCap.className = 'abcap';
-    beamCap.textContent = AB_PLACES[i];
+    beamCap.className = 'abcap' + (isUnit ? ' unit' : '');
+    beamCap.textContent = AB_LABELS[i];
     col.appendChild(up);
     col.appendChild(beam);
     col.appendChild(beamCap);
@@ -1273,106 +1384,130 @@ function renderAbacus() {
     for (let b = 0; b < 4; b++) {
       const bead = document.createElement('button');
       bead.type = 'button';
-      bead.className = 'ablow' + (b < lowCount ? ' on' : '');
+      bead.className = 'ablow' + (b < lowCount ? ' on' : '') + (ab.hot === i ? ' hot' : '');
       bead.title = 'worth one';
-      bead.setAttribute('aria-label', AB_PLACES[i] + ' column, one bead ' + (b + 1));
+      bead.setAttribute('aria-label', AB_LABELS[i] + ' column, one bead ' + (b + 1));
       bead.addEventListener('click', () => {
         const cur = abLowerCount(i);
         ab.val[i] = abUpperOn(i) ? 5 + (cur > b ? b : b + 1) : (cur > b ? b : b + 1);
         if (ab.val[i] < 0) ab.val[i] = 0;
         if (ab.val[i] > 9) ab.val[i] = 9;
-        ab.steps = []; ab.at = 0;
-        renderAbacus();
+        ab.steps = []; ab.at = 0; ab.hot = -1;
+        renderAbacus(); renderHands();
         sayAb('You are now at <b>' + abNumber() + '</b>.');
       });
       col.appendChild(bead);
     }
     frame.appendChild(col);
   }
-  const digitRow = document.createElement('div');
-  digitRow.className = 'abcol';
+  const show = document.createElement('div');
+  show.className = 'abcol';
+  show.style.justifyContent = 'center';
   const lab = document.createElement('span');
   lab.className = 'abcap';
   lab.textContent = 'showing';
-  const show = document.createElement('b');
-  show.className = 'mono';
-  show.style.fontSize = '1.15rem';
-  show.style.color = 'var(--acc)';
-  show.textContent = abNumber();
-  digitRow.appendChild(lab);
-  digitRow.appendChild(show);
-  frame.appendChild(digitRow);
+  const num = document.createElement('b');
+  num.className = 'mono';
+  num.style.cssText = 'font-size:1.15rem;color:var(--acc)';
+  num.textContent = abNumber();
+  show.appendChild(lab);
+  show.appendChild(num);
+  frame.appendChild(show);
+  $('ab-size-picker').querySelectorAll('[data-cols]').forEach(btn => {
+    btn.setAttribute('aria-pressed', String(Number(btn.dataset.cols) === ab.cols));
+  });
+  $('ab-frame-note').textContent = ab.cols >= 13
+    ? 'Standard 13-column soroban. Swipe the frame sideways to reach the bigger columns.'
+    : ab.cols + ' columns, sized for fingers. Switch to 13 for the full frame.';
+  renderHands();
 }
 function sayAb(html) { $('ab-say').innerHTML = html; }
 
 function abStepsMake(n) {
   const t = abSet(n);
-  const steps = [{ say: 'Clear the frame. Every bead down means <b>nought</b> in that column.', state: [0, 0, 0, 0] }];
+  const steps = [{ say: 'Clear the frame. Every bead away from the bar means <b>nought</b> in that column.', state: abReadDigits(), hot: -1 }];
   abSplit(t).forEach(p => {
     steps.push({
-      say: 'Put <b>' + p.digit + '</b> in the ' + PLACE_WORD[p.place] + ' column.',
-      state: placeOnly(p.place, p.digit)
+      say: 'Put <b>' + p.digit + '</b> in the ' + PLACE_WORD(p.place) + ' column.',
+      state: abDigits(t).map((d, i) => i === p.place ? d : 0), hot: p.place
     });
-    if (p.digit === 5) steps.push({ say: 'Five is the one number with its own bead, so push the big bead down and leave the small ones up.', state: placeOnly(p.place, 5) });
+    if (p.digit === 5) steps.push({ say: 'Five is the one number with its own bead, so the big bead comes down and the small ones stay up.', state: placeOnly(p.place, 5), hot: p.place });
   });
-  steps.push({ say: 'All the way up: <b>' + t + '</b>.', state: ab.val.slice() });
+  steps.push({ say: 'All the way up: <b>' + t + '</b>.', state: abReadDigits(), hot: -1 });
   return { steps: steps, title: 'Showing ' + t };
 }
 function placeOnly(place, digit) {
-  const s = [0, 0, 0, 0];
+  const s = abDigits(0);
   s[place] = digit;
   return s;
 }
 function abStepsAdd(a, b) {
   const start = abSet(a);
-  const base = abDigits(start);
+  const base = abReadDigits();
   const total = abSet(start + b);
-  const steps = [{ say: 'Put <b>' + start + '</b> on the frame first.', state: base.slice() }];
+  const steps = [{ say: 'Put <b>' + start + '</b> on the frame first.', state: base.slice(), hot: -1 }];
   abSplit(b).forEach(p => {
-    steps.push({ say: 'Add <b>' + p.digit + '</b> to the ' + PLACE_WORD[p.place] + ' column.', state: addTo(base, placeOnly(p.place, p.digit)) });
-    if (p.digit === 5) steps.push({ say: 'The big bead alone makes the five, so that step is one tap instead of five.', state: placeOnly(p.place, 5) });
+    steps.push({ say: 'Add <b>' + p.digit + '</b> to the ' + PLACE_WORD(p.place) + ' column.', state: addTo(base, placeOnly(p.place, p.digit)), hot: p.place });
+    if (p.digit === 5) steps.push({ say: 'The big bead alone makes the five, so that step is one push instead of five.', state: placeOnly(p.place, 5), hot: p.place });
   });
-  steps.push({ say: 'The frame now reads <b>' + total + '</b>, which is ' + start + ' + ' + b + '.', state: ab.val.slice() });
+  steps.push({ say: 'The frame now reads <b>' + total + '</b>, which is ' + start + ' + ' + b + '.', state: abReadDigits(), hot: -1 });
   return { steps: steps, title: start + ' + ' + b + ' = ' + total };
 }
 function abStepsSub(a, b) {
   const start = abSet(a);
-  const base = abDigits(start);
+  const base = abReadDigits();
   if (b > start) {
-    return { steps: [{ say: 'You cannot take <b>' + b + '</b> away from <b>' + start + '</b> — the frame does not go below nothing. Try a smaller number to take away.', state: base.slice() }], title: 'That will not fit' };
+    return { steps: [{ say: 'You cannot take <b>' + b + '</b> away from <b>' + start + '</b> — the frame does not go below nothing. Try a smaller number to take away.', state: base.slice(), hot: -1 }], title: 'That will not fit' };
   }
   const total = abSet(start - b);
-  const steps = [{ say: 'Put <b>' + start + '</b> on the frame first.', state: base.slice() }];
-  abSplit(b).reverse().forEach(p => {
-    const next = subFrom(base, placeOnly(p.place, p.digit));
-    steps.push({ say: 'Take <b>' + p.digit + '</b> out of the ' + PLACE_WORD[p.place] + ' column. Start on the right so you never have to borrow across a column.', state: next || base.slice() });
+  const steps = [{ say: 'Put <b>' + start + '</b> on the frame first.', state: base.slice(), hot: -1 }];
+  const from = abSplit(b).slice().reverse();
+  let work = base.slice();
+  from.forEach((p, i) => {
+    const isLeftmost = i === 0;
+    const next = subFrom(work, placeOnly(p.place, p.digit));
+    const say = isLeftmost
+      ? 'Take <b>' + p.digit + '</b> out of the ' + PLACE_WORD(p.place) + ' column. If you run out, borrow from the column on the left — the <b>left hand</b> does the borrowing.'
+      : 'Take <b>' + p.digit + '</b> out of the ' + PLACE_WORD(p.place) + ' column.';
+    steps.push({ say: say, state: next || work.slice(), hot: p.place });
+    if (next) work = next;
   });
-  steps.push({ say: 'The frame now reads <b>' + total + '</b>, which is ' + start + ' − ' + b + '.', state: ab.val.slice() });
+  steps.push({ say: 'The frame now reads <b>' + total + '</b>, which is ' + start + ' − ' + b + '.', state: abReadDigits(), hot: -1 });
   return { steps: steps, title: start + ' − ' + b + ' = ' + total };
 }
 function addTo(n, delta) {
   const s = n.slice();
-  for (let i = 0; i < 4; i++) s[i] += delta[i];
+  for (let i = 0; i < s.length; i++) s[i] += delta[i] || 0;
   return carry(s);
 }
 function subFrom(n, delta) {
   const s = n.slice();
-  for (let i = 0; i < 4; i++) s[i] -= delta[i];
+  for (let i = 0; i < s.length; i++) s[i] -= delta[i] || 0;
   let borrow = 0;
-  for (let i = 0; i < 4; i++) { s[i] -= borrow; if (s[i] < 0) { s[i] += 10; borrow = 1; } else borrow = 0; }
-  if (borrow) return null;
-  return s;
+  for (let i = 0; i < s.length; i++) {
+    s[i] -= borrow;
+    if (s[i] < 0) { s[i] += 10; borrow = 1; } else borrow = 0;
+  }
+  return borrow ? null : s;
 }
 function carry(d) {
   const s = d.slice();
-  for (let i = 0; i < 4; i++) { if (s[i] >= 10) { s[i] -= 10; if (i + 1 < 4) s[i + 1] += 1; } }
+  for (let i = 0; i < s.length; i++) {
+    if (s[i] >= 10) {
+      s[i] -= 10;
+      if (i + 1 < s.length) s[i + 1] += 1;
+    }
+  }
   return s;
 }
 function abRun(plan) {
   ab.steps = plan.steps;
   ab.at = 0;
+  ab.digits = [];
   $('ab-say').innerHTML = '<b>' + plan.title + '</b><br>Press "Next step" to work through it one move at a time.';
   $('ab-progress').textContent = 'Step 0 of ' + ab.steps.length;
+  ab.val = abDigits(0);
+  ab.digits = [];
   renderAbacus();
 }
 function abNext() {
@@ -1383,14 +1518,16 @@ function abNext() {
   }
   const s = ab.steps[ab.at];
   ab.val = s.state.slice();
+  ab.digits = s.state.slice();
   sayAb(s.say);
   ab.at += 1;
   $('ab-progress').textContent = 'Step ' + ab.at + ' of ' + ab.steps.length;
-  renderAbacus();
+  highlightCol(s.hot);
 }
 function abClear() {
-  ab.val = [0, 0, 0, 0];
-  ab.steps = []; ab.at = 0;
+  ab.val = abDigits(0);
+  ab.digits = [];
+  ab.steps = []; ab.at = 0; ab.hot = -1;
   sayAb('The frame is empty. That reads as <b>0</b>. Tap a bead to start, or pick numbers below.');
   $('ab-progress').textContent = '';
   renderAbacus();
@@ -1402,7 +1539,7 @@ function abNotes() {
     'Four small beads and one big bead. The big bead is worth <b>five</b>, which is why 5 is the easiest number to put on or take off.',
     'A whole column is worth <b>ten times</b> the column on its right. That is the whole trick of place value, and the reason 243 really is 2 hundreds, 4 tens and 3 ones.',
     'Counting in fives is fast: <b>25</b> is 5 in the tens column, one tap of the big bead.',
-    'To take away, start at the <b>right-hand</b> column. Work right to left and you never have to borrow across a column.',
+    'To take away, borrow from the column on the <b>left</b> when you run out, using the left hand. On an abacus you work from the left across, not from the right.',
     'The big digit and the columns are the same idea as the bead groups in First Facts, drawn bigger.'
   ].forEach(t => {
     const li = document.createElement('li');
@@ -3270,6 +3407,14 @@ function wire() {
   $('ab-sub').addEventListener('click', () => abRun(abStepsSub(abNumber(), $('ab-b').value)));
   $('ab-step').addEventListener('click', abNext);
   $('ab-reset').addEventListener('click', abClear);
+  $('ab-size-picker').addEventListener('click', e => {
+    const b = e.target.closest('[data-cols]');
+    if (!b) return;
+    abResize(Number(b.dataset.cols));
+    ab.steps = []; ab.at = 0; ab.hot = -1;
+    ab.val = abDigits(abNumber());
+    renderAbacus();
+  });
   $('btn-back').addEventListener('click', goBack);
   $('btn-records').addEventListener('click', () => { renderRecords(); setView('records'); });
   $('btn-export').addEventListener('click', () => {

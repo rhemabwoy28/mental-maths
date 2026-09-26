@@ -38,6 +38,7 @@ const stripped = src
   .replace(/^renderHome\(\);$/m, '')
   .replace(/^wire\(\);$/m, '')
   + '\nglobalThis.__X = { ab, abNumber, abDigits, abSet, abSplit, abLowerCount, abUpperOn,'
+  + ' abResize, abScale, renderHands, AB_SIZES, AB_LABELS,'
   + ' abStepsMake, abStepsAdd, abStepsSub, addTo, subFrom, carry, placeOnly, abRun, abNext,'
   + ' abClear, abNotes, renderAbacus, renderTables, tv, TV_MAX_N, mulState, setView,'
   + ' factKey, factState, factStat, rungProgress, save, startSession, nextQuestion, submit, finish,'
@@ -46,8 +47,8 @@ const stripped = src
 function fakeEl(id) {
   const props = { textContent: '', value: '', innerHTML: '', hidden: false, disabled: false, offsetWidth: 0, children: [], title: '', type: 'button' };
   const cls = new Set();
-  const t = {
-    id, style: {}, dataset: {},
+    const t = {
+    id, style: { setProperty() {}, removeProperty() {}, cssText: '' }, dataset: {},
     focus() {}, blur() {}, click() {}, querySelectorAll: () => [],
     appendChild(c) { props.children.push(c); },
     removeChild(c) { props.children = props.children.filter(x => x !== c); },
@@ -100,26 +101,30 @@ const b = boot();
 let X = b.X;
 ok('boots', !!X && Array.isArray(X.ab.val));
 
+const read = s => s.reduce((n, d, i) => n + d * Math.pow(10, i), 0);
+const zeros = () => { const a = []; for (let i = 0; i < X.ab.cols; i++) a.push(0); return a; };
+
 console.log('2. the abacus value model');
 {
   let bad = [];
   for (let n = 0; n <= 9999; n++) {
     const d = X.abDigits(n);
-    const v = d[0] + d[1] * 10 + d[2] * 100 + d[3] * 1000;
+    const v = read(d);
     if (v !== n) { bad.push(n + ' -> ' + v); break; }
     if (d.some(x => x < 0 || x > 9)) { bad.push(n + ' digit out of range: ' + d.join(',')); break; }
   }
   ok('abDigits/abNumber round trip for 0..9999', bad.length === 0, bad.join(' | '));
-  ok('abSet returns the clamped number', X.abSet(243) === 243 && X.abSet(99999) === 9999 && X.abSet(-5) === 0 && X.abSet('abc') === 0);
+  ok('abDigits is wide enough for the full frame', X.abDigits(987654321).length === X.ab.cols && X.abDigits(987654321)[0] === 1 && X.abDigits(987654321)[8] === 9, 'cols=' + X.ab.cols + ' d=' + X.abDigits(987654321).join(','));
+  ok('abSet returns the clamped number', X.abSet(243) === 243 && X.abSet(-5) === 0 && X.abSet('abc') === 0 && X.abSet(1e15) === 9999999999999, String(X.abSet(1e15)));
   X.abSet(243);
   ok('upper bead is worth five', X.abLowerCount(0) === 3 && X.abUpperOn(0) === false, 'val=' + X.ab.val.join(','));
   X.ab.val = [7, 0, 0, 0];
   ok('7 uses the 5-bead plus two 1-beads', X.abUpperOn(0) === true && X.abLowerCount(0) === 2, 'val=' + X.ab.val.join(','));
-  X.ab.val = [5, 0, 0, 0];
+  X.ab.val = [5, 0, 0, 0]; X.ab.val.length = X.ab.cols;
   ok('5 is the big bead alone', X.abUpperOn(0) === true && X.abLowerCount(0) === 0);
-  X.ab.val = [0, 0, 0, 0];
+  X.ab.val = zeros();
   ok('0 is everything down', X.abUpperOn(0) === false && X.abLowerCount(0) === 0);
-  X.ab.val = [0, 0, 0, 0];
+  X.ab.val = zeros();
   ok('abSplit skips empty columns', X.abSplit(243).map(p => p.digit).sort().join('') === '234' && X.abSplit(0).length === 0 && X.abSplit(1000).length === 1);
   ok('abSplit reads columns right to left', X.abSplit(243)[0].place === 0 && X.abSplit(243)[2].place === 2);
 }
@@ -130,10 +135,10 @@ console.log('3. showing a number always lands on that number');
   for (const n of [0, 1, 5, 9, 10, 40, 50, 99, 100, 243, 505, 1000, 9999, 35, 7]) {
     const plan = X.abStepsMake(n);
     const last = plan.steps[plan.steps.length - 1].state;
-    const v = last[0] + last[1] * 10 + last[2] * 100 + last[3] * 1000;
+    const v = read(last);
     if (v !== n) bad.push(n + ' -> ' + v);
     plan.steps.forEach((s, i) => {
-      if (!Array.isArray(s.state) || s.state.length !== 4) bad.push(n + ' step ' + i + ' bad state');
+      if (!Array.isArray(s.state) || s.state.length !== X.ab.cols) bad.push(n + ' step ' + i + ' bad state len=' + (s.state && s.state.length));
       else if (s.state.some(x => x < 0 || x > 9)) bad.push(n + ' step ' + i + ' digit out of range');
       if (!s.say || !s.say.length) bad.push(n + ' step ' + i + ' no narration');
     });
@@ -153,12 +158,12 @@ console.log('4. addition walks correctly (the bug that was live a moment ago)');
     total++;
     const plan = X.abStepsAdd(a, b);
     const last = plan.steps[plan.steps.length - 1].state;
-    const v = last[0] + last[1] * 10 + last[2] * 100 + last[3] * 1000;
+    const v = read(last);
     if (v !== a + b) { bad.push(a + '+' + b + ' -> ' + v + ' expected ' + (a + b)); if (bad.length > 3) break; }
     for (const s of plan.steps) if (!Array.isArray(s.state) || s.state.some(x => x < 0 || x > 9)) { bad.push(a + '+' + b + ' bad state'); break; }
   }
   ok(total + ' additions all land on a+b with valid columns', bad.length === 0, bad.slice(0, 3).join(' | '));
-  const read = s => s[0] + s[1] * 10 + s[2] * 100 + s[3] * 1000;
+  
   ok('243 + 35 walks 243, 248, then 5 alone, 273, 278', (() => {
     const frames = X.abStepsAdd(243, 35).steps.map(s => read(s.state));
     return frames.join(',') === '243,248,5,273,278';
@@ -181,19 +186,19 @@ console.log('5. subtraction walks correctly');
   for (const [a, b] of cases) {
     const plan = X.abStepsSub(a, b);
     const last = plan.steps[plan.steps.length - 1].state;
-    const v = last[0] + last[1] * 10 + last[2] * 100 + last[3] * 1000;
+    const v = read(last);
     if (v !== a - b) { bad.push(a + '-' + b + ' -> ' + v + ' expected ' + (a - b)); if (bad.length > 3) break; }
   }
   ok(cases.length + ' subtractions all land on a-b', bad.length === 0, bad.slice(0, 3).join(' | '));
-  ok('243 - 35 = 208', (() => { const p = X.abStepsSub(243, 35); const l = p.steps[p.steps.length - 1].state; return l[0] + l[1] * 10 + l[2] * 100 + l[3] * 1000 === 208; })());
+  ok('243 - 35 = 208', (() => { const p = X.abStepsSub(243, 35); const l = p.steps[p.steps.length - 1].state; return read(l) === 208; })());
   ok('taking away more than you have is refused kindly', (() => {
     const p = X.abStepsSub(24, 35);
     return /does not go below nothing/.test(p.steps[0].say) && /smaller number/.test(p.steps[0].say);
   })());
-  ok('borrowing is handled (100 - 1 = 99)', (() => { const p = X.abStepsSub(100, 1); const l = p.steps[p.steps.length - 1].state; return l[0] + l[1] * 10 + l[2] * 100 === 99; })());
+  ok('borrowing is handled (100 - 1 = 99)', (() => { const p = X.abStepsSub(100, 1); const l = p.steps[p.steps.length - 1].state; return read(l) === 99; })());
   ok('subFrom borrows across columns like a real abacus (1000 - 5 = 995)', (() => {
     const r = X.subFrom([0, 0, 0, 1], [5, 0, 0, 0]);
-    return r && r[0] + r[1] * 10 + r[2] * 100 + r[3] * 1000 === 995;
+    return r && read(r) === 995;
   })());
   ok('subFrom returns null when there is genuinely nothing to borrow', X.subFrom([0, 0, 0, 0], [1, 0, 0, 0]) === null);
   ok('every subtraction step stays on the frame', (() => {
@@ -209,15 +214,17 @@ console.log('5. subtraction walks correctly');
 console.log('6. tapping beads works and never leaves a broken state');
 {
   X.abClear();
-  ok('clear means zero', X.abNumber() === 0 && X.ab.val.join('') === '0000');
-  ok('renderAbacus draws four columns plus the readout', b.el('ab-frame').children.length === 5, String(b.el('ab-frame').children.length));
+  ok('clear means zero', X.abNumber() === 0 && X.ab.val.length === X.ab.cols && X.ab.val.every(v => v === 0), 'val=' + X.ab.val.join(''));
+  ok('renderAbacus draws every column plus the readout', b.el('ab-frame').children.length === X.ab.cols + 1, String(b.el('ab-frame').children.length));
+  const first = X.ab.cols - 1;
   const col = b.el('ab-frame').children[0];
   ok('each column is the 5-bead, the beam, the place label, then four 1-beads', col.children.length === 7, 'children=' + col.children.length);
   ok('the 5-bead comes before the beam', /abup/.test(col.children[0].className) && /abbeam/.test(col.children[1].className), col.children[0].className + ' then ' + col.children[1].className);
   ok('the last four are the 1-beads', [3, 4, 5, 6].every(i => /ablow/.test(col.children[i].className)), [3, 4, 5, 6].map(i => col.children[i].className).join(','));
-  ok('thousands column is first on screen', /1000/.test(col.children[2].textContent), col.children[2].textContent);
+  ok('the biggest column is first on screen', col.children[2].textContent === '1T', col.children[2].textContent);
+  ok('the ones column is last on screen', b.el('ab-frame').children[first].children[2].textContent === '1', b.el('ab-frame').children[first].children[2].textContent);
   let bad = [];
-  for (let col_i = 0; col_i < 4; col_i++) {
+  for (let col_i = 0; col_i < X.ab.cols; col_i++) {
     for (let b2 = 0; b2 < 4; b2++) {
       X.abClear();
       X.renderAbacus();
@@ -226,8 +233,50 @@ console.log('6. tapping beads works and never leaves a broken state');
     }
   }
   ok('no 1-bead is lit on an empty frame', bad.length === 0, bad.join(' | '));
-  ok('the 5-bead lights for a value of 5..9', (() => { X.ab.val = [0, 6, 0, 0]; X.renderAbacus(); return /abup on/.test(b.el('ab-frame').children[2].children[0].className); })(), b.el('ab-frame').children[2].children[0].className);
-  ok('the 5-bead stays up for 0..4', (() => { X.ab.val = [0, 4, 0, 0]; X.renderAbacus(); return !/on/.test(b.el('ab-frame').children[2].children[0].className); })(), b.el('ab-frame').children[2].children[0].className);
+  const ones = () => b.el('ab-frame').children[first];
+  ok('the 5-bead lights for a value of 5..9', (() => { X.ab.val[0] = 6; X.renderAbacus(); return /abup on/.test(ones().children[0].className); })(), ones().children[0].className);
+  ok('the 5-bead stays up for 0..4', (() => { X.ab.val[0] = 4; X.renderAbacus(); return !/on/.test(ones().children[0].className); })(), ones().children[0].className);
+  ok('every third column is marked as a unit rod', (() => {
+    X.abClear(); X.renderAbacus();
+    const unit = i => /unit/.test(b.el('ab-frame').children[first - i].children[2].className);
+    return unit(2) && !unit(1) && unit(5) && !unit(4) && unit(8);
+  })());
+  ok('the width picker offers 7, 9 and 13 columns', JSON.stringify(X.AB_SIZES) === '[7,9,13]', JSON.stringify(X.AB_SIZES));
+  ok('every column has a place label up to a trillion', X.AB_LABELS.length === 13 && X.AB_LABELS[12] === '1T' && X.AB_LABELS[0] === '1', X.AB_LABELS.join(','));
+  ok('fewer columns means bigger beads for fingers', (() => {
+    X.abResize(7); const big = X.abScale().bead;
+    X.abResize(13); const small = X.abScale().bead;
+    X.abResize(9); const mid = X.abScale().bead;
+    return big > mid && mid > small;
+  })());
+  ok('the hands panel lights the fingers for the ones column, not the biggest one', (() => {
+    X.abClear(); X.abResize(13);
+    X.ab.digits = X.abDigits(3042);
+    X.renderHands();
+    const left = b.el('fingers-left').children;
+    const right = b.el('fingers-right').children;
+    const lit = box => box.filter(c => c._cls.has('on')).length;
+    const r = lit(left) === 2 && lit(right) === 0;
+    X.ab.digits = X.abDigits(7);
+    X.renderHands();
+    const r2 = lit(left) === 5 && lit(right) === 2;
+    X.ab.digits = X.abDigits(9);
+    X.renderHands();
+    const r3 = lit(left) === 5 && lit(right) === 4;
+    X.ab.digits = X.abDigits(0);
+    X.renderHands();
+    const r4 = lit(left) === 0 && lit(right) === 0;
+    return left.length === 5 && right.length === 5 && r && r2 && r3 && r4;
+  })(), 'fingers left/right built');
+  ok('changing width keeps the number on the frame', (() => {
+    X.abClear(); X.abSet(1234); X.renderAbacus();
+    X.abResize(7); X.renderAbacus();
+    const kept = X.abNumber() === 1234;
+    X.abResize(9); X.renderAbacus();
+    const grown = X.abNumber() === 1234 && X.ab.cols === 9;
+    X.abResize(13); X.renderAbacus();
+    return kept && grown && X.abNumber() === 1234;
+  })());
   ok('tapping a 1-bead raises exactly that bead', (() => {
     X.abClear(); X.renderAbacus();
     const tens = b.el('ab-frame').children[2];

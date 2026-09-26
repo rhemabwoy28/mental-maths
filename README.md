@@ -47,9 +47,16 @@ report: you can see exactly which multiples are automatic and which are not.
 questions follows the cap (2 times runs to `2 × 30`, 7 times stops at `7 × 8`).
 
 ### Abacus
-A working soroban, four columns, tap the beads. The 5-bead sits above the beam and is worth
-five; the four beads below are worth one each; a whole column is worth ten times the one on
-its right.
+A working soroban you can switch between **7, 9 and 13 columns**. The 5-bead sits above the
+beam and is worth five; the four beads below are worth one each; a whole column is worth ten
+times the one on its right. Fewer columns means bigger beads, so 7-column mode is sized for
+small fingers. A dot marks every third column, the way a real soroban marks its unit rods.
+
+**Count on your hands first.** A panel above the frame lights your fingers for whatever the
+ones column is showing: left hand for 1-5, right hand for 6-10. This is the standard
+recommendation for beginners — get the quantities 1-10 into the fingers before asking for them
+on the beads, then check the frame agrees. The panel follows the steps, so during `243 + 35`
+it shows the fingers for each ones digit as it happens.
 
 Three things you can ask it to do, each narrated one move at a time under your control (no
 auto-play, so a child decides the pace):
@@ -59,9 +66,9 @@ auto-play, so a child decides the pace):
   step, showing only the big bead lit so the point is visible.
 - **Add** — adds each column in turn, and isolates the big bead for any 5 so the shortcut is
   explicit.
-- **Take away** — works right to left, which is why you never have to borrow across a column.
-  Asking to take away more than you have is refused in plain language rather than producing
-  a negative frame.
+- **Take away** — works across from the left, which is how an abacus is actually used, and
+  borrows from the column on the left when a column runs out. Asking to take away more than you
+  have is refused in plain language rather than producing a negative frame.
 
 Free play is the default: tap any bead and the readout tells you what you are looking at.
 
@@ -139,6 +146,34 @@ place-value columns. That is exactly the chunking structure that makes `6 × 7` 
 tractable, so the app draws a 5-bead visual for the groups on every First Facts question. It
 delivers the mental model in five minutes a day instead of three years.
 
+## Designing the abacus from the actual instrument
+
+The frame follows the real thing rather than a simplified toy:
+
+- **Rod count.** A soroban's rod count is always odd and never fewer than 7; 13 is the
+  traditional standard and the Japanese federation's own beginner text uses 23. The picker
+  offers 7, 9 and 13, defaulting to 13, so there is a wide frame to grow into without an
+  unreadable one on a phone.
+- **Unit rods.** Real sorobans mark every third rod with a dot. Those dots are shown, which
+  quietly groups the frame in threes as well as fives.
+- **The two hands.** Trained users touch only two fingers: the **right thumb** pushes the
+  1-beads *up* to the bar, and the right index finger does everything else. The left hand is
+  for carrying and borrowing. The captions state this, and subtraction narration assigns the
+  borrowing to the left hand explicitly.
+- **Direction.** On an abacus you work left to right, borrowing from the column on your left
+  when you run out — not right to left as on paper. The first version of this app got that
+  backwards and told the child to start on the right; it is fixed.
+- **Hands before beads.** The strongest practical finding for beginners is to establish 1-10
+  in the fingers *first* — left hand 1-5, right hand 6-10 — and only then move the same
+  quantity onto the beads. That is what the hands panel does, and it tracks the ones column
+  live during every step.
+- **Complement tricks are left out.** Abacus traditions contain "10's complement" shortcuts
+  that can make a subtraction correct on the frame while the written arithmetic underneath is
+  not. Handbooks explicitly warn against teaching them. Nothing here teaches them.
+
+Sources: [Soroban (Wikipedia)](https://en.wikipedia.org/wiki/Soroban),
+[Basics of using the abacus (Sikana)](https://www.indianabacus.in/level1/images/Basics%20of%20using%20the%20abacus.pdf).
+
 ## The other research the design follows
 
 - **Operand effect** (Campbell & Graham): facts containing 1, 2, 5 or 9 are intrinsically
@@ -167,6 +202,10 @@ npm test
 - sessions contain no duplicate and no interfering pair
 - the abacus value model round-trips for 0–9999, and ~1400 additions and subtractions each
   land on the right number with every column staying in range
+- all 13 columns render with the right bead order, unit dots land on every third column, and
+  the hands panel lights the fingers for the **ones** column (not the biggest one)
+- switching between 7, 9 and 13 columns never changes the number on the frame, and fewer
+  columns always means bigger beads
 - every times-table multiple is correct for all 12 tables against all three caps
 - the table drill only ever asks the chosen multiplier
 - the back-button router pushes and pops history correctly, and every view is reachable
